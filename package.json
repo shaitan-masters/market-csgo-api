@@ -1,0 +1,31 @@
+{
+  "name": "node-csgotm-api",
+  "version": "0.0.1",
+  "description": "A module for interacting with the csgo.tm API",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xfaider48/node-csgotm-api.git"
+  },
+  "keywords": [
+    "node",
+    "csgo",
+    "csgotm",
+    "api"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/Xfaider48/node-csgotm-api/issues"
+  },
+  "homepage": "https://github.com/Xfaider48/node-csgotm-api#readme",
+  "author": "Alexander Dilevskiy",
+  "license": "MIT",
+  "dependencies": {
+    "bottleneck": "^1.15.1",
+    "csv-parse": "^1.2.0",
+    "extend": "^3.0.0",
+    "got": "^6.7.1"
+  }
+}
