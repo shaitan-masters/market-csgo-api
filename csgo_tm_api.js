@@ -50,7 +50,6 @@ class CSGOtmAPI {
         });
 
         this.baseURI = 'https://market.csgo.com/api/';
-        this.availableLanguages = ['en', 'ru'];
 
         /**
          *  CSGO.TM API has a limit of 5 requests per second.
@@ -67,6 +66,18 @@ class CSGOtmAPI {
             );
         }
     }
+
+    /**
+     * Available languages
+     * @returns {{EN: string, RU: string}}
+     */
+    static get LANGUAGES() {
+        return {
+            EN: 'en',
+            RU: 'ru'
+        };
+    }
+
 
     /**
      * JSON request
@@ -423,20 +434,15 @@ class CSGOtmAPI {
      * Get item info
      *
      * @param {Object} item
+     * @param {String} language One of static LANGUAGES
      * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetInfo(item, gotOptions = {}) {
-        let url = 'ItemInfo/%s_%s/%s';
-        item = item || {};
-        item.language = item.language || 'en';
-
-        if (this.availableLanguages.indexOf(item.language) === -1) {
-            item.language = this.availableLanguages[0];
-        }
-
-        url = util.format(url, item.classId, item.instanceId, item.language);
+    itemGetInfo(item, language, gotOptions = {}) {
+        let url = 'ItemInfo/' + CSGOtmAPI.formatItem(item);
+        language = language || CSGOtmAPI.LANGUAGES.RU;
+        url = url + '/' + language;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -700,7 +706,7 @@ class CSGOtmAPI {
     /**
      * Massive update prices
      *
-     * @param item
+     * @param {Object} item
      * @param {Number} price
      * @param {Object} gotOptions Options for 'got' module
      *
