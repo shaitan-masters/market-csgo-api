@@ -38,7 +38,7 @@ class CSGOtmAPI {
         }
 
         this.options = {};
-        extend(this.options, options, {
+        extend(true, this.options, {
             useLimiter: true,
             limiterOptions: {
                 concurrent: 1, // 1 request at time
@@ -47,7 +47,7 @@ class CSGOtmAPI {
                 strategy: Bottleneck.strategy.LEAK,
                 rejectOnDrop: true
             }
-        });
+        }, options);
 
         this.baseURI = 'https://market.csgo.com/api/';
 
