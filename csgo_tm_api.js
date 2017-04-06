@@ -42,7 +42,7 @@ class CSGOtmAPI {
             useLimiter: true,
             limiterOptions: {
                 concurrent: 1, // 1 request at time
-                minTime: 250,  // Max 5 requests per seconds
+                minTime: 200,  // Max 5 requests per seconds
                 highWater: -1,
                 strategy: Bottleneck.strategy.LEAK,
                 rejectOnDrop: true
@@ -649,7 +649,7 @@ class CSGOtmAPI {
     /**
      * Updating price of sell
      *
-     * @param {String} itemId Item ui_id from 'Trades' method
+     * @param {String} itemId Item ui_id from 'accountGetTrades' method
      * @param {Number} price
      * @param {Object} gotOptions Options for 'got' module
      *
@@ -676,7 +676,7 @@ class CSGOtmAPI {
     /**
      * Create trade request
      *
-     * @param {String} botId Bot ui_bid from 'Trades' method (with ui_status = 4)
+     * @param {String} botId Bot ui_bid from 'accountGetTrades' method (with ui_status = 4)
      * @param {String} type CREATE_TRADE_REQUEST_TYPE type
      * @param {Object} gotOptions Options for 'got' module
      *
@@ -717,6 +717,309 @@ class CSGOtmAPI {
         price = parseInt(price);
         url = url + '/' + String(price);
         return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * -------------------------------------
+     * Buy methods
+     * -------------------------------------
+     */
+
+    /**
+     * Creating new buy
+     *
+     * @param {Object} item
+     * @param {Number} price
+     * @param {String} hash Value from 'itemInfo'
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    buyCreate(item, price, gotOptions = {}) {
+        let url = 'Buy/' + CSGOtmAPI.formatItem(item);
+        price = parseInt(price);
+        url = url + '/' + String(price) + '/' + item.hash;
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * -------------------------------------
+     * Order methods
+     * -------------------------------------
+     */
+
+    /**
+     * Getting list of orders
+     *
+     * @param {Number} page For pagination
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    orderGetList(page = null, gotOptions = {}) {
+        let url = 'GetOrders';
+        page = parseInt(page);
+        if (!isNaN(page) && pade > 0) {
+            url = url + '/' + String(page);
+        }
+
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * Creating new order
+     *
+     * @param {Object} item
+     * @param {Number} price
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    orderCreate(item, price, gotOptions = {}) {
+        let url = 'Buy/' + CSGOtmAPI.formatItem(item, '/');
+        price = parseInt(price);
+        url = url + '/' + String(price) + '/' + item.hash;
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * Updating or removing order. If price = 0, then order will be removed, else updated
+     *
+     * @param {Object} item
+     * @param {Number} price
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    orderUpdateOrRemove(item, price, gotOptions = {}) {
+        let url = 'Buy/' + CSGOtmAPI.formatItem(item, '/');
+        price = parseInt(price);
+        url = url + '/' + String(price);
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * Create, Update or Remove order
+     *
+     * @param {Object} item
+     * @param {Number} price
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    orderProcess(item, price, gotOptions = {}) {
+        let url = 'Buy/' + CSGOtmAPI.formatItem(item, '/');
+        price = parseInt(price);
+        url = url + '/' + String(price);
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * Deleting all orders
+     *
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    orderDeleteAll(gotOptions = {}) {
+        return this.callMethodWithKey('DeleteOrders', gotOptions);
+    }
+
+    /**
+     * Getting status of order system
+     *
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    orderSystemStatus(gotOptions = {}) {
+        return this.callMethodWithKey('StatusOrders', gotOptions);
+    }
+
+    /**
+     * Getting the last 100 orders
+     *
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    orderGetLog(gotOptions = {}) {
+        return this.callMethodWithKey('GetOrdersLog', gotOptions);
+    }
+
+    /**
+     * -------------------------------------
+     * Notification methods
+     * -------------------------------------
+     */
+
+    /**
+     * Getting notification
+     *
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    notificationGet(gotOptions = {}) {
+        return this.callMethodWithKey('GetNotifications', gotOptions);
+    }
+
+    /**
+     * Update or remove notification.
+     *
+     * @param {Object} item
+     * @param {Number} price
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    notificationProcess(item, price, gotOptions = {}) {
+        let url = 'UpdateNotification/' + CSGOtmAPI.formatItem(item, '/');
+        price = parseInt(price);
+        url = url + '/' + String(price);
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * -------------------------------------
+     * Searching methods
+     * -------------------------------------
+     */
+
+    /**
+     * Searching items by names
+     *
+     * @param {Array|Object} items One item or array of items
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    searchItemsByName(items, gotOptions = {}) {
+        let url = this.baseURI + 'MassSearchItemByName/key=' + this.options.apiKey;
+
+        if (!Array.isArray(items)) {
+            items = [items];
+        }
+
+        let list = [];
+        items.forEach(item => {
+            item = item || {};
+            list.push(item.market_hash_name);
+        });
+
+        gotOptions.body = {
+            list: list
+        };
+
+        return this.limitRequest(() => {
+            return new Promise((resolve, reject) => {
+                got(url, gotOptions).then(response => {
+                    let body = JSON.parse(response.body);
+                    if (body.error) {
+                        throw new CSGOtmAPIError(body.error);
+                    }
+                    else {
+                        resolve(body);
+                    }
+                }).catch(error => {
+                    reject(error);
+                });
+            });
+        });
+    }
+
+    /**
+     * Searching one item by name
+     *
+     * @param {Object} item
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    searchItemByName(item, gotOptions = {}) {
+        item = item || {};
+        let url = this.baseURI + 'SearchItemByName/' + item.market_hash_name;
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * -------------------------------------
+     * Quick buy methods
+     * -------------------------------------
+     */
+
+    /**
+     * Getting list of available items for quick buy
+     *
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    quickGetItems(gotOptions = {}) {
+        return this.callMethodWithKey('QuickItems', gotOptions);
+    }
+
+    /**
+     * Quick buy item
+     *
+     * @param {String} itemId Item ui_id from 'accountGetTrades' method
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    quickBuy(itemId, gotOptions = {}) {
+        return this.callMethodWithKey('QuickBuy/' + String(itemId), gotOptions);
+    }
+
+    /**
+     * -------------------------------------
+     * Additional methods
+     * -------------------------------------
+     */
+
+    /**
+     * Getting all stickers
+     *
+     * @param gotOptions
+     *
+     * @returns {Promise}
+     */
+    additionalGetStickers(gotOptions = {}) {
+        return this.callMethodWithKey('GetStickers', gotOptions);
+    }
+
+    /**
+     * Test trades possibility
+     *
+     * @param gotOptions
+     *
+     * @returns {Promise}
+     */
+    additionalTest(gotOptions = {}) {
+        return this.callMethodWithKey('Test', gotOptions);
+    }
+
+    /**
+     * Getting the last messages
+     *
+     * @param gotOptions
+     *
+     * @returns {Promise}
+     */
+    additionalGetChatLog(gotOptions = {}) {
+        return this.callMethodWithKey('GetChatLog', gotOptions);
+    }
+
+    /**
+     * Getting the status of bot
+     *
+     * @param {String} botId Bot ui_bid from 'accountGetTrades' method
+     * @param gotOptions
+     *
+     * @returns {Promise}
+     */
+    additionalCheckBotStatus(botId, gotOptions = {}) {
+        return this.callMethodWithKey('CheckBotStatus/' + String(botId), gotOptions);
     }
 }
 
