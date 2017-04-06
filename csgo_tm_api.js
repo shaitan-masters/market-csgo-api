@@ -26,8 +26,8 @@ class CSGOtmAPI {
      * @param {Object} options
      *
      * {String}     [options.apiKey=false] API key (required)
-     * {Boolean}    [options.useLimiter=true] using request limiter
-     * {Object}     [options.limiterOptions={}] parameters for 'bottleneck' module
+     * {Boolean}    [options.useLimiter=true] Using request limiter
+     * {Object}     [options.limiterOptions={}] Parameters for 'bottleneck' module
      *
      * @throws {CSGOtmAPIError}
      */
@@ -72,11 +72,11 @@ class CSGOtmAPI {
      * JSON request
      *
      * @param url
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    static requestJSON(url, gotOptions) {
+    static requestJSON(url, gotOptions = {}) {
         gotOptions = gotOptions || {};
         gotOptions.json = true;
 
@@ -98,11 +98,11 @@ class CSGOtmAPI {
     /**
      * Get current database file information
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    static itemDbCurrent(gotOptions) {
+    static itemDbCurrent(gotOptions = {}) {
         let url = 'https://market.csgo.com/itemdb/current_730.json';
         return CSGOtmAPI.requestJSON(url, gotOptions);
     }
@@ -111,11 +111,11 @@ class CSGOtmAPI {
      * Get current database file data
      *
      * @param {String} dbName
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    static itemDb(dbName, gotOptions) {
+    static itemDb(dbName, gotOptions = {}) {
         let url = 'https://market.csgo.com/itemdb/' + dbName;
         return new Promise((resolve, reject) => {
             got(url, gotOptions).then(response => {
@@ -143,13 +143,34 @@ class CSGOtmAPI {
     /**
      * Get list of the last 50 purchases
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    static history(gotOptions) {
+    static history(gotOptions = {}) {
         let url = 'https://market.csgo.com/history/json/';
         return CSGOtmAPI.requestJSON(url, gotOptions);
+    }
+
+    /**
+     * Format item to needed query string
+     *
+     * @param {Object} item
+     * @param {String} symbol
+     *
+     * @returns {string}
+     */
+    static formatItem(item, symbol = '_') {
+        item = item || {};
+
+        // For different property names in API
+        let classId = item.i_classid || item.classid || item.classId;
+        let instanceId = item.i_classid || item.instanceid || item.instanceId;
+
+        classId = String(classId);
+        instanceId = String(instanceId);
+
+        return classId + symbol + instanceId;
     }
 
     /**
@@ -169,6 +190,36 @@ class CSGOtmAPI {
     }
 
     /**
+     * Simple API call with key
+     *
+     * @param {String} method
+     * @param {Object} gotOptions
+     *
+     * @returns {Promise}
+     */
+    callMethodWithKey(method, gotOptions = {}) {
+        let url = this.baseURI + method + '/?key=' + this.options.apiKey;
+        return this.limitRequest(() => {
+            return CSGOtmAPI.requestJSON(url, gotOptions);
+        });
+    }
+
+
+    /**
+     * Simple API call with added item url
+     *
+     * @param {Object} item
+     * @param {String} method
+     * @param {Object}gotOptions
+     *
+     * @returns {Promise}
+     */
+    callItemMethod(item, method, gotOptions = {}) {
+        method = method + CSGOtmAPI.formatItem(item);
+        return this.callMethodWithKey(method, gotOptions);
+    }
+
+    /**
      * -------------------------------------
      * Account methods
      * -------------------------------------
@@ -178,152 +229,113 @@ class CSGOtmAPI {
     /**
      * Getting the Steam inventory, only those items that you have not already put up for sale
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetSteamInventory(gotOptions) {
-        let url = this.baseURI + '/GetInv/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetSteamInventory(gotOptions = {}) {
+        return this.callMethodWithKey('GetInv', gotOptions);
     }
 
     /**
      * Getting the info about items in trades
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetTrades(gotOptions) {
-        let url = this.baseURI + '/Trades/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetTrades(gotOptions = {}) {
+        return this.callMethodWithKey('Trades', gotOptions);
     }
 
     /**
      * Get account balance
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetMoney(gotOptions) {
-        let url = this.baseURI + '/GetMoney/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetMoney(gotOptions = {}) {
+        return this.callMethodWithKey('GetMoney', gotOptions);
     }
 
     /**
      * Ping that you in online
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountPingPong(gotOptions) {
-        let url = this.baseURI + '/PingPong/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountPingPong(gotOptions = {}) {
+        return this.callMethodWithKey('PingPong', gotOptions);
     }
 
     /**
      * Stop your trades
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGoOffline(gotOptions) {
-        let url = this.baseURI + '/GoOffline/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGoOffline(gotOptions = {}) {
+        return this.callMethodWithKey('GoOffline', gotOptions);
     }
 
     /**
      * Set token
      *
      * @param {String} token from steam trade url
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountSetToken(token, gotOptions) {
-        let url = this.baseURI + '/SetToken/%s/?key=%s';
-        url = util.format(url, token, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountSetToken(token, gotOptions = {}) {
+        let method = this.baseURI + 'SetToken/' + token;
+        return this.callMethodWithKey(method, gotOptions);
     }
 
     /**
      * Get token
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetToken(gotOptions) {
-        let url = this.baseURI + '/GetToken/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetToken(gotOptions = {}) {
+        return this.callMethodWithKey('GetToken', gotOptions);
     }
 
     /**
      * Get key for auth on websockets
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetWSAuth(gotOptions) {
-        let url = this.baseURI + '/GetWSAuth/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetWSAuth(gotOptions = {}) {
+        return this.callMethodWithKey('GetWSAuth', gotOptions);
     }
 
     /**
      * Update cache of steam inventory
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountUpdateInventory(gotOptions) {
-        let url = this.baseURI + '/UpdateInventory/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountUpdateInventory(gotOptions = {}) {
+        return this.callMethodWithKey('UpdateInventory', gotOptions);
     }
 
     /**
      * Getting cache status of inventory
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetCacheInfoInventory(gotOptions) {
-        let url = this.baseURI + '/InventoryItems/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetCacheInfoInventory(gotOptions = {}) {
+        return this.callMethodWithKey('InventoryItems', gotOptions);
     }
 
     /**
@@ -331,95 +343,73 @@ class CSGOtmAPI {
      *
      * @param {Date} from
      * @param {Date} to
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetOperationHistory(from, to, gotOptions) {
-        let url = this.baseURI + '/OperationHistory/%s/%s/?key=%s';
+    accountGetOperationHistory(from, to, gotOptions = {}) {
+        let method = 'OperationHistory/%s/%s';
         let fromUnixtime = Math.floor(from.getTime() / 1000);
         let toUnixtime = Math.floor(to.getTime() / 1000);
 
-        url = util.format(url, fromUnixtime, toUnixtime, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+        method = util.format(method, fromUnixtime, toUnixtime);
+        return this.callMethodWithKey(method, gotOptions);
     }
 
     /**
      * Getting discounts
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetDiscounts(gotOptions) {
-        let url = this.baseURI + '/GetDiscounts/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetDiscounts(gotOptions = {}) {
+        return this.callMethodWithKey('GetDiscounts', gotOptions);
     }
 
     /**
      * Getting counters from https://market.csgo.com/sell/
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetCounters(gotOptions) {
-        let url = this.baseURI + '/GetCounters/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetCounters(gotOptions = {}) {
+        return this.callMethodWithKey('GetCounters', gotOptions);
     }
 
     /**
      * Getting items of profile with hash
      *
      * @param {String} hash
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetProfileItems(hash, gotOptions) {
-        let url = this.baseURI + '/GetProfileItems/%s/?key=%s';
-        url = util.format(url, hash, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetProfileItems(hash, gotOptions = {}) {
+        return this.callMethodWithKey('GetProfileItems', gotOptions);
     }
 
     /**
      * Getting items from sell offers
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetItemsSellOffers(gotOptions) {
-        let url = this.baseURI + '/GetMySellOffers/%s/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetItemsSellOffers(gotOptions = {}) {
+        return this.callMethodWithKey('GetMySellOffers', gotOptions);
     }
 
     /**
      * Get a list of items that have been sold and must be passed to the market bot using the ItemRequest method.
      *
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    accountGetItemsToGive(gotOptions) {
-        let url = this.baseURI + '/GetItemsToGive/%s/?key=%s';
-        url = util.format(url, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
-        });
+    accountGetItemsToGive(gotOptions = {}) {
+        return this.callMethodWithKey('GetItemsToGive', gotOptions);
     }
 
 
@@ -433,12 +423,12 @@ class CSGOtmAPI {
      * Get item info
      *
      * @param {Object} item
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetInfo(item, gotOptions) {
-        let url = this.baseURI + '/ItemInfo/%s_%s/%s/?key=%s';
+    itemGetInfo(item, gotOptions = {}) {
+        let url = 'ItemInfo/%s_%s/%s';
         item = item || {};
         item.language = item.language || 'en';
 
@@ -446,129 +436,281 @@ class CSGOtmAPI {
             item.language = this.availableLanguages[0];
         }
 
-        url = util.format(url, item.classId, item.instanceId, item.language, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions)
-        });
+        url = util.format(url, item.classId, item.instanceId, item.language);
+        return this.callMethodWithKey(url, gotOptions);
     }
 
     /**
      * Get item history
      *
      * @param {Object} item
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetHistory(item, gotOptions) {
-        let url = this.baseURI + '/ItemHistory/%s_%s/?key=%s';
-        item = item || {};
-        url = util.format(url, item.classId, item.instanceId, item.language, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions)
-        });
+    itemGetHistory(item, gotOptions = {}) {
+        return this.callItemMethod(item, 'ItemHistory', gotOptions);
     }
 
     /**
      * Get item hash of 'Float Value'
      *
      * @param {Object} item
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetFloatHash(item, gotOptions) {
-        let url = this.baseURI + '/GetFloatHash/%s_%s/?key=%s';
-        item = item || {};
-        url = util.format(url, item.classId, item.instanceId, item.language, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions)
-        });
+    itemGetFloatHash(item, gotOptions = {}) {
+        return this.callItemMethod(item, 'GetFloatHash', gotOptions);
     }
 
     /**
      * Get item sell offers
      *
      * @param {Object} item
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetSellOffers(item, gotOptions) {
-        let url = this.baseURI + '/SellOffers/%s_%s/?key=%s';
-        item = item || {};
-        url = util.format(url, item.classId, item.instanceId, item.language, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions)
-        });
+    itemGetSellOffers(item, gotOptions = {}) {
+        return this.callItemMethod(item, 'SellOffers', gotOptions);
     }
 
     /**
      * Get item bet sell offer
      *
      * @param {Object} item
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetBestSellOffer(item, gotOptions) {
-        let url = this.baseURI + '/BestSellOffer/%s_%s/?key=%s';
-        item = item || {};
-        url = util.format(url, item.classId, item.instanceId, item.language, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions)
-        });
+    itemGetBestSellOffer(item, gotOptions = {}) {
+        return this.callItemMethod(item, 'BestSellOffer', gotOptions);
     }
 
     /**
      * Get item buy offers
      *
      * @param {Object} item
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetBuyOffers(item, gotOptions) {
-        let url = this.baseURI + '/BuyOffers/%s_%s/?key=%s';
-        item = item || {};
-        url = util.format(url, item.classId, item.instanceId, item.language, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions)
-        });
+    itemGetBuyOffers(item, gotOptions = {}) {
+        return this.callItemMethod(item, 'BuyOffers', gotOptions);
     }
 
     /**
      * Get item best buy offer
      *
      * @param {Object} item
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetBestBuyOffer(item, gotOptions) {
-        let url = this.baseURI + '/BestBuyOffer/%s_%s/?key=%s';
-        item = item || {};
-        url = util.format(url, item.classId, item.instanceId, item.language, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions)
-        });
+    itemGetBestBuyOffer(item, gotOptions = {}) {
+        return this.callItemMethod(item, 'BestBuyOffer', gotOptions);
     }
 
     /**
      * Get item description for method 'buy'
      *
      * @param {Object} item
-     * @param {Object} gotOptions options for 'got' module
+     * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    itemGetDescription(item, gotOptions) {
-        let url = this.baseURI + '/GetItemDescription/%s_%s/?key=%s';
-        item = item || {};
-        url = util.format(url, item.classId, item.instanceId, item.language, this.options.apiKey);
-        return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions)
+    itemGetDescription(item, gotOptions = {}) {
+        return this.callItemMethod(item, 'GetItemDescription', gotOptions);
+    }
+
+    /**
+     * Available types of 'SELL' and 'BUY' param in 'MassInfo' request
+     * @returns {{NOTHING: number, TOP_50_SUGGESTIONS: number, TOP_SUGGESTION: number}}
+     */
+    static get MASS_INFO_SELL_BUY() {
+        return {
+            NOTHING: 0,
+            TOP_50_SUGGESTIONS: 1,
+            TOP_SUGGESTION: 2
+        };
+    };
+
+    /**
+     * Available types of 'HISTORY' param in 'MassInfo' request
+     * @returns {{NOTHING: number, LAST_100_SELLS: number, LAST_10_SELLS: number}}
+     */
+    static get MASS_INFO_HISTORY() {
+        return {
+            NOTHING: 0,
+            LAST_100_SELLS: 1,
+            LAST_10_SELLS: 2
+        };
+    };
+
+    /**
+     * Available types of 'INFO' param in 'MassInfo' request
+     * @returns {{NOTHING: number, BASE: number, EXTENDED: number, MAXIMUM: number}}
+     */
+    static get MASS_INFO_INFO() {
+        return {
+            NOTHING: 0,
+            BASE: 1,
+            EXTENDED: 2,
+            MAXIMUM: 3
+        };
+    };
+
+    /**
+     * Getting more info about item
+     *
+     * @param {Array|Object} items One item or array of items
+     * @param {Object} params Request params
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    itemMassInfo(items, params = {}, gotOptions = {}) {
+        // [SELL], [BUY], [HISTORY], [INFO]
+        let url = this.baseURI + 'MassInfo/%s/%s/%s/%s?key=%s';
+
+        if (!Array.isArray(items)) {
+            items = [items];
+        }
+
+        params = params || {};
+        params.sell = params.sell || CSGOtmAPI.MASS_INFO_SELL_BUY.NOTHING;
+        params.buy = params.buy || CSGOtmAPI.MASS_INFO_SELL_BUY.NOTHING;
+        params.history = params.history || CSGOtmAPI.MASS_INFO_HISTORY.NOTHING;
+        params.info = params.info || CSGOtmAPI.MASS_INFO_INFO.BASE;
+
+        url = util.format(url,
+            params.sell,
+            params.buy,
+            params.history,
+            params.info,
+            this.options.apiKey
+        );
+
+        let list = [];
+        items.forEach(item => {
+            list.push(CSGOtmAPI.formatItem(item));
         });
+
+        gotOptions.body = {
+            list: list
+        };
+
+        return this.limitRequest(() => {
+            return new Promise((resolve, reject) => {
+                got(url, gotOptions).then(response => {
+                    let body = JSON.parse(response.body);
+                    if (body.error) {
+                        throw new CSGOtmAPIError(body.error);
+                    }
+                    else {
+                        resolve(body);
+                    }
+                }).catch(error => {
+                    reject(error);
+                });
+            });
+        });
+    }
+
+    /**
+     * -------------------------------------
+     * Sell methods
+     * -------------------------------------
+     */
+
+    /**
+     * Creating new sell
+     *
+     * @param item
+     * @param {Number} price
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    sellCreate(item, price, gotOptions = {}) {
+        let url = 'SetPrice/new_' + CSGOtmAPI.formatItem(item);
+        price = parseInt(price);
+        url = url + '/' + String(price);
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * Updating price of sell
+     *
+     * @param {String} itemId Item ui_id from 'Trades' method
+     * @param {Number} price
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    sellUpdatePrice(itemId, price, gotOptions = {}) {
+        let url = 'SetPrice/' + String(itemId);
+        price = parseInt(price);
+        url = url + '/' + String(price);
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * Available types of \sellCreateTradeRequest\ method
+     * @returns {{IN: string, OUT: string}}
+     */
+    static get CREATE_TRADE_REQUEST_TYPE() {
+        return {
+            IN: 'in',
+            OUT: 'out'
+        };
+    };
+
+    /**
+     * Create trade request
+     *
+     * @param {String} botId Bot ui_bid from 'Trades' method (with ui_status = 4)
+     * @param {String} type CREATE_TRADE_REQUEST_TYPE type
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    sellCreateTradeRequest(botId, type = 'out', gotOptions = {}) {
+        let types = CSGOtmAPI.CREATE_TRADE_REQUEST_TYPE;
+        if ([types.IN, types.OUT].indexOf(type) === -1) {
+            type = types.OUT;
+        }
+
+        let url = 'ItemRequest/' + type + '/' + String(botId);
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * Getting market trades
+     *
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    sellGetMarketTrades(gotOptions = {}) {
+        return this.callMethodWithKey('MarketTrades', gotOptions);
+    }
+
+    /**
+     * Massive update prices
+     *
+     * @param item
+     * @param {Number} price
+     * @param {Object} gotOptions Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    sellMassUpdatePrice(item, price, gotOptions = {}) {
+        let url = 'MassSetPrice/' + CSGOtmAPI.formatItem(item);
+        price = parseInt(price);
+        url = url + '/' + String(price);
+        return this.callMethodWithKey(url, gotOptions);
     }
 }
 
