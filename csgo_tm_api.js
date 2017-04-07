@@ -25,6 +25,8 @@ class CSGOtmAPI {
     /**
      * @param {Object} options
      *
+     * {String}     [options.baseUrl='https://market.csgo.com/'] Base url
+     * {String}     [options.apiPath='api'] Relative path to api
      * {String}     [options.apiKey=false] API key (required)
      * {Boolean}    [options.useLimiter=true] Using request limiter
      * {Object}     [options.limiterOptions={}] Parameters for 'bottleneck' module
@@ -39,17 +41,17 @@ class CSGOtmAPI {
 
         this.options = {};
         extend(true, this.options, {
+            baseUrl: 'https://market.csgo.com/',
+            apiPath: 'api',
             useLimiter: true,
             limiterOptions: {
-                concurrent: 1, // 1 request at time
+                maxConcurrent: 1, // 1 request at time
                 minTime: 200,  // Max 5 requests per seconds
                 highWater: -1,
                 strategy: Bottleneck.strategy.LEAK,
                 rejectOnDrop: true
             }
         }, options);
-
-        this.baseURI = 'https://market.csgo.com/api/';
 
         /**
          *  CSGO.TM API has a limit of 5 requests per second.
@@ -58,7 +60,7 @@ class CSGOtmAPI {
         if (this.options.useLimiter) {
             let limiterOptions = this.options.limiterOptions;
             this.limiter = new Bottleneck(
-                limiterOptions.concurrent,
+                limiterOptions.maxConcurrent,
                 limiterOptions.minTime,
                 limiterOptions.highWater,
                 limiterOptions.strategy,
@@ -107,18 +109,6 @@ class CSGOtmAPI {
     }
 
     /**
-     * Get current database file information
-     *
-     * @param {Object} gotOptions Options for 'got' module
-     *
-     * @returns {Promise}
-     */
-    static itemDbCurrent(gotOptions = {}) {
-        let url = 'https://market.csgo.com/itemdb/current_730.json';
-        return CSGOtmAPI.requestJSON(url, gotOptions);
-    }
-
-    /**
      * Get current database file data
      *
      * @param {String} dbName
@@ -127,7 +117,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     static itemDb(dbName, gotOptions = {}) {
-        let url = 'https://market.csgo.com/itemdb/' + dbName;
+        let url = this.options.baseUrl + 'itemdb/' + dbName;
         return new Promise((resolve, reject) => {
             got(url, gotOptions).then(response => {
                 parseCSV(
@@ -159,7 +149,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     static history(gotOptions = {}) {
-        let url = 'https://market.csgo.com/history/json/';
+        let url = this.options.baseUrl + 'history/json/';
         return CSGOtmAPI.requestJSON(url, gotOptions);
     }
 
@@ -182,6 +172,14 @@ class CSGOtmAPI {
         instanceId = String(instanceId);
 
         return classId + symbol + instanceId;
+    }
+
+    /**
+     * Get API url
+     * @returns {string}
+     */
+    get apiUrl() {
+        return this.options.baseUrl + this.options.apiPath;
     }
 
     /**
@@ -209,7 +207,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     callMethodWithKey(method, gotOptions = {}) {
-        let url = this.baseURI + method + '/?key=' + this.options.apiKey;
+        let url = this.apiUrl + '/' + method + '/?key=' + this.options.apiKey;
         return this.limitRequest(() => {
             return CSGOtmAPI.requestJSON(url, gotOptions);
         });
@@ -301,7 +299,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     accountSetToken(token, gotOptions = {}) {
-        let method = this.baseURI + 'SetToken/' + token;
+        let method = 'SetToken/' + token;
         return this.callMethodWithKey(method, gotOptions);
     }
 
@@ -578,7 +576,7 @@ class CSGOtmAPI {
      */
     itemMassInfo(items, params = {}, gotOptions = {}) {
         // [SELL], [BUY], [HISTORY], [INFO]
-        let url = this.baseURI + 'MassInfo/%s/%s/%s/%s?key=%s';
+        let url = this.apiUrl + '/MassInfo/%s/%s/%s/%s?key=%s';
 
         if (!Array.isArray(items)) {
             items = [items];
@@ -730,7 +728,6 @@ class CSGOtmAPI {
      *
      * @param {Object} item
      * @param {Number} price
-     * @param {String} hash Value from 'itemInfo'
      * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
@@ -895,7 +892,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     searchItemsByName(items, gotOptions = {}) {
-        let url = this.baseURI + 'MassSearchItemByName/key=' + this.options.apiKey;
+        let url = this.apiUrl + '/MassSearchItemByName/key=' + this.options.apiKey;
 
         if (!Array.isArray(items)) {
             items = [items];
@@ -938,7 +935,7 @@ class CSGOtmAPI {
      */
     searchItemByName(item, gotOptions = {}) {
         item = item || {};
-        let url = this.baseURI + 'SearchItemByName/' + item.market_hash_name;
+        let url = this.apiUrl + '/SearchItemByName/' + item.market_hash_name;
         return this.callMethodWithKey(url, gotOptions);
     }
 
