@@ -20,7 +20,7 @@ Params:
 - `options[baseUrl]`: url to API. *Default: `https://market.csgo.com/`.*
 - `options[apiPath]`: relative path to API. *Default: `api`.*
 - `options[useLimiter]`: enable [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Default: `true`.*
-- `options[limiterOptions]`: options for [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Defaults: *
+- `options[limiterOptions]`: options for [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Default:*
 ```
 {
     maxConcurrent: 1,
@@ -44,6 +44,10 @@ All API-call methods return Promise, and they have `gotOptions` param for [got](
 - `search`
 - `quick`
 - `additional`
+
+Many of methods **require** `item` in the params. It should be an object with properties:
+- `i_classid` or `classid` or `classId`
+- `i_instanceid` or `instanceid` or `instanceId`
 
 ## Example
 
