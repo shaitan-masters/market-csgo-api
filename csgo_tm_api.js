@@ -166,7 +166,7 @@ class CSGOtmAPI {
 
         // For different property names in API
         let classId = item.i_classid || item.classid || item.classId;
-        let instanceId = item.i_classid || item.instanceid || item.instanceId;
+        let instanceId = item.i_instanceid || item.instanceid || item.instanceId;
 
         classId = String(classId);
         instanceId = String(instanceId);
