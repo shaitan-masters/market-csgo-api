@@ -20,6 +20,7 @@ Params:
 - `options[baseUrl]`: url to API. *Default: `https://market.csgo.com/`.*
 - `options[apiPath]`: relative path to API. *Default: `api`.*
 - `options[useLimiter]`: enable [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Default: `true`.*
+- `options[defaultGotOptions]`: default options for [got](https://github.com/sindresorhus/got) module for all API-call methods without `gotOptions` param(except static). *Default: `{}`.*
 - `options[limiterOptions]`: options for [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Default:*
 ```
 {

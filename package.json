@@ -1,6 +1,6 @@
 {
   "name": "node-csgotm-api",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A module for interacting with the csgo.tm API",
   "main": "index.js",
   "repository": {

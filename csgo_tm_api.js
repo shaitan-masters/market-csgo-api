@@ -29,6 +29,7 @@ class CSGOtmAPI {
      * {String}     [options.apiPath='api'] Relative path to api
      * {String}     [options.apiKey=false] API key (required)
      * {Boolean}    [options.useLimiter=true] Using request limiter
+     * {Object}     [options.defaultGotOptions={}] Default parameters for 'got' module
      * {Object}     [options.limiterOptions={}] Parameters for 'bottleneck' module
      *
      * @throws {CSGOtmAPIError}
@@ -50,7 +51,8 @@ class CSGOtmAPI {
                 highWater: -1,
                 strategy: Bottleneck.strategy.LEAK,
                 rejectOnDrop: true
-            }
+            },
+            defaultGotOptions: {}
         }, options);
 
         /**
@@ -208,6 +210,10 @@ class CSGOtmAPI {
      */
     callMethodWithKey(method, gotOptions = {}) {
         let url = this.apiUrl + '/' + method + '/?key=' + this.options.apiKey;
+        if (!Object.keys(gotOptions).length) {
+            gotOptions = this.options.defaultGotOptions;
+        }
+
         return this.limitRequest(() => {
             return CSGOtmAPI.requestJSON(url, gotOptions);
         });
@@ -219,7 +225,7 @@ class CSGOtmAPI {
      *
      * @param {Object} item
      * @param {String} method
-     * @param {Object}gotOptions
+     * @param {Object} gotOptions
      *
      * @returns {Promise}
      */
@@ -575,6 +581,10 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     itemMassInfo(items, params = {}, gotOptions = {}) {
+        if (!Object.keys(gotOptions).length) {
+            gotOptions = this.options.defaultGotOptions;
+        }
+
         // [SELL], [BUY], [HISTORY], [INFO]
         let url = this.apiUrl + '/MassInfo/%s/%s/%s/%s?key=%s';
 
@@ -892,6 +902,10 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     searchItemsByName(items, gotOptions = {}) {
+        if (!Object.keys(gotOptions).length) {
+            gotOptions = this.options.defaultGotOptions;
+        }
+
         let url = this.apiUrl + '/MassSearchItemByName/key=' + this.options.apiKey;
 
         if (!Array.isArray(items)) {
