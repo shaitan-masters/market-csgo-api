@@ -1,6 +1,6 @@
 {
   "name": "node-csgotm-api",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A module for interacting with the csgo.tm API",
   "main": "index.js",
   "repository": {
@@ -24,6 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "bottleneck": "^1.15.1",
+    "clone": "^2.1.1",
     "csv-parse": "^1.2.0",
     "extend": "^3.0.0",
     "got": "^6.7.1"

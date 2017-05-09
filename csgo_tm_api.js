@@ -3,6 +3,7 @@
 var got = require('got'),
     util = require('util'),
     extend = require('extend'),
+    clone = require('clone'),
     Bottleneck = require("bottleneck"),
     parseCSV = require('csv-parse');
 
@@ -93,6 +94,7 @@ class CSGOtmAPI {
      */
     static requestJSON(url, gotOptions = {}) {
         gotOptions = gotOptions || {};
+        gotOptions = clone(gotOptions);
         gotOptions.json = true;
 
         return new Promise((resolve, reject) => {
@@ -582,11 +584,11 @@ class CSGOtmAPI {
      */
     itemMassInfo(items, params = {}, gotOptions = {}) {
         if (!Object.keys(gotOptions).length) {
-            gotOptions = this.options.defaultGotOptions;
+            gotOptions = clone(this.options.defaultGotOptions);
         }
 
         // [SELL], [BUY], [HISTORY], [INFO]
-        let url = this.apiUrl + '/MassInfo/%s/%s/%s/%s?key=%s';
+        let url = 'MassInfo/%s/%s/%s/%s';
 
         if (!Array.isArray(items)) {
             items = [items];
@@ -602,8 +604,7 @@ class CSGOtmAPI {
             params.sell,
             params.buy,
             params.history,
-            params.info,
-            this.options.apiKey
+            params.info
         );
 
         let list = [];
@@ -615,21 +616,7 @@ class CSGOtmAPI {
             list: list
         };
 
-        return this.limitRequest(() => {
-            return new Promise((resolve, reject) => {
-                got(url, gotOptions).then(response => {
-                    let body = JSON.parse(response.body);
-                    if (body.error) {
-                        throw new CSGOtmAPIError(body.error);
-                    }
-                    else {
-                        resolve(body);
-                    }
-                }).catch(error => {
-                    reject(error);
-                });
-            });
-        });
+        return this.callMethodWithKey(url, gotOptions);
     }
 
     /**
@@ -766,7 +753,7 @@ class CSGOtmAPI {
     orderGetList(page = null, gotOptions = {}) {
         let url = 'GetOrders';
         page = parseInt(page);
-        if (!isNaN(page) && pade > 0) {
+        if (!isNaN(page) && page > 0) {
             url = url + '/' + String(page);
         }
 
@@ -903,10 +890,8 @@ class CSGOtmAPI {
      */
     searchItemsByName(items, gotOptions = {}) {
         if (!Object.keys(gotOptions).length) {
-            gotOptions = this.options.defaultGotOptions;
+            gotOptions = clone(this.options.defaultGotOptions);
         }
-
-        let url = this.apiUrl + '/MassSearchItemByName/key=' + this.options.apiKey;
 
         if (!Array.isArray(items)) {
             items = [items];
@@ -922,21 +907,7 @@ class CSGOtmAPI {
             list: list
         };
 
-        return this.limitRequest(() => {
-            return new Promise((resolve, reject) => {
-                got(url, gotOptions).then(response => {
-                    let body = JSON.parse(response.body);
-                    if (body.error) {
-                        throw new CSGOtmAPIError(body.error);
-                    }
-                    else {
-                        resolve(body);
-                    }
-                }).catch(error => {
-                    reject(error);
-                });
-            });
-        });
+        return this.callMethodWithKey('MassSearchItemByName', gotOptions);
     }
 
     /**
@@ -949,7 +920,7 @@ class CSGOtmAPI {
      */
     searchItemByName(item, gotOptions = {}) {
         item = item || {};
-        let url = this.apiUrl + '/SearchItemByName/' + item.market_hash_name;
+        let url = 'SearchItemByName/' + item.market_hash_name;
         return this.callMethodWithKey(url, gotOptions);
     }
 
