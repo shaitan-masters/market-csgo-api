@@ -613,7 +613,7 @@ class CSGOtmAPI {
         });
 
         gotOptions.body = {
-            list: list
+            list: list.toString()
         };
 
         return this.callMethodWithKey(url, gotOptions);
