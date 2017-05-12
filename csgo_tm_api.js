@@ -101,7 +101,12 @@ class CSGOtmAPI {
             got(url, gotOptions).then(response => {
                 let body = response.body;
                 if (body.error) {
-                    throw new CSGOtmAPIError(body.error);
+                    let errorMessage = String(body.error);
+                    if (body.result) {
+                        errorMessage += '. ' + body.result;
+                    }
+
+                    throw new CSGOtmAPIError(errorMessage);
                 }
                 else {
                     resolve(body);
