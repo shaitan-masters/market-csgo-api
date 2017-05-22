@@ -121,12 +121,13 @@ class CSGOtmAPI {
      * Get current database file data
      *
      * @param {String} dbName
+     * @param {String} baseUrl
      * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    static itemDb(dbName, gotOptions = {}) {
-        let url = this.options.baseUrl + 'itemdb/' + dbName;
+    static itemDb(dbName, baseUrl = 'https://market.csgo.com/', gotOptions = {}) {
+        let url = baseUrl + 'itemdb/' + dbName;
         return new Promise((resolve, reject) => {
             got(url, gotOptions).then(response => {
                 parseCSV(
@@ -153,12 +154,13 @@ class CSGOtmAPI {
     /**
      * Get list of the last 50 purchases
      *
+     * @param {String} baseUrl
      * @param {Object} gotOptions Options for 'got' module
      *
      * @returns {Promise}
      */
-    static history(gotOptions = {}) {
-        let url = this.options.baseUrl + 'history/json/';
+    static history(baseUrl = 'https://market.csgo.com/', gotOptions = {}) {
+        let url = baseUrl + 'history/json/';
         return CSGOtmAPI.requestJSON(url, gotOptions);
     }
 
