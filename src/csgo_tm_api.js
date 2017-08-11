@@ -1,11 +1,9 @@
-"use strict";
-
-var got = require('got'),
-    util = require('util'),
-    extend = require('extend'),
-    clone = require('clone'),
-    Bottleneck = require("bottleneck"),
-    parseCSV = require('csv-parse');
+import got from 'got';
+import util from 'util';
+import extend from 'extend';
+import clone from 'clone';
+import Bottleneck from "bottleneck";
+import parseCSV from 'csv-parse';
 
 /**
  * API error
@@ -35,8 +33,7 @@ class CSGOtmAPI {
      *
      * @throws {CSGOtmAPIError}
      */
-    constructor (options) {
-        options = options || {};
+    constructor(options={}) {
         if (!options.apiKey) {
             throw new CSGOtmAPIError('API key required');
         }
@@ -103,7 +100,7 @@ class CSGOtmAPI {
                 if (body.error) {
                     let errorMessage = String(body.error);
                     if (body.result) {
-                        errorMessage += '. ' + body.result;
+                        errorMessage += `. ${body.result}`;
                     }
 
                     throw new CSGOtmAPIError(errorMessage);
@@ -127,7 +124,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     static itemDb(dbName, baseUrl = 'https://market.csgo.com/', gotOptions = {}) {
-        let url = baseUrl + 'itemdb/' + dbName;
+        let url = `${baseUrl}itemdb/${dbName}`;
         return new Promise((resolve, reject) => {
             got(url, gotOptions).then(response => {
                 parseCSV(
@@ -136,7 +133,7 @@ class CSGOtmAPI {
                         columns: true,
                         delimiter: ';'
                     },
-                    function(err, data){
+                    (err, data) => {
                         if (err) {
                             reject(err);
                         }
@@ -160,7 +157,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     static history(baseUrl = 'https://market.csgo.com/', gotOptions = {}) {
-        let url = baseUrl + 'history/json/';
+        let url = `${baseUrl}history/json/`;
         return CSGOtmAPI.requestJSON(url, gotOptions);
     }
 
@@ -172,9 +169,7 @@ class CSGOtmAPI {
      *
      * @returns {string}
      */
-    static formatItem(item, symbol = '_') {
-        item = item || {};
-
+    static formatItem(item={}, symbol = '_') {
         // For different property names in API
         let classId = item.i_classid || item.classid || item.classId;
         let instanceId = item.i_instanceid || item.instanceid || item.instanceId;
@@ -218,7 +213,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     callMethodWithKey(method, gotOptions = {}) {
-        let url = this.apiUrl + '/' + method + '/?key=' + this.options.apiKey;
+        let url = `${this.apiUrl}/${method}/?key=${this.options.apiKey}`;
         if (!Object.keys(gotOptions).length) {
             gotOptions = this.options.defaultGotOptions;
         }
@@ -314,7 +309,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     accountSetToken(token, gotOptions = {}) {
-        let method = 'SetToken/' + token;
+        let method = `SetToken/${token}`;
         return this.callMethodWithKey(method, gotOptions);
     }
 
@@ -453,9 +448,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     itemGetInfo(item, language, gotOptions = {}) {
-        let url = 'ItemInfo/' + CSGOtmAPI.formatItem(item);
+        let url = `ItemInfo/${CSGOtmAPI.formatItem(item)}`;
         language = language || CSGOtmAPI.LANGUAGES.RU;
-        url = url + '/' + language;
+        url = `${url}/${language}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -642,9 +637,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     sellCreate(item, price, gotOptions = {}) {
-        let url = 'SetPrice/new_' + CSGOtmAPI.formatItem(item);
+        let url = `SetPrice/new_${CSGOtmAPI.formatItem(item)}`;
         price = parseInt(price);
-        url = url + '/' + String(price);
+        url = `${url}/${String(price)}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -658,9 +653,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     sellUpdatePrice(itemId, price, gotOptions = {}) {
-        let url = 'SetPrice/' + String(itemId);
+        let url = `SetPrice/${String(itemId)}`;
         price = parseInt(price);
-        url = url + '/' + String(price);
+        url = `${url}/${String(price)}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -686,11 +681,11 @@ class CSGOtmAPI {
      */
     sellCreateTradeRequest(botId, type = 'out', gotOptions = {}) {
         let types = CSGOtmAPI.CREATE_TRADE_REQUEST_TYPE;
-        if ([types.IN, types.OUT].indexOf(type) === -1) {
+        if (![types.IN, types.OUT].includes(type)) {
             type = types.OUT;
         }
 
-        let url = 'ItemRequest/' + type + '/' + String(botId);
+        let url = `ItemRequest/${type}/${String(botId)}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -715,9 +710,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     sellMassUpdatePrice(item, price, gotOptions = {}) {
-        let url = 'MassSetPrice/' + CSGOtmAPI.formatItem(item);
+        let url = `MassSetPrice/${CSGOtmAPI.formatItem(item)}`;
         price = parseInt(price);
-        url = url + '/' + String(price);
+        url = `${url}/${String(price)}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -737,9 +732,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     buyCreate(item, price, gotOptions = {}) {
-        let url = 'Buy/' + CSGOtmAPI.formatItem(item);
+        let url = `Buy/${CSGOtmAPI.formatItem(item)}`;
         price = parseInt(price);
-        url = url + '/' + String(price) + '/' + item.hash;
+        url = `${url}/${String(price)}/${item.hash}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -761,7 +756,7 @@ class CSGOtmAPI {
         let url = 'GetOrders';
         page = parseInt(page);
         if (!isNaN(page) && page > 0) {
-            url = url + '/' + String(page);
+            url = `${url}/${String(page)}`;
         }
 
         return this.callMethodWithKey(url, gotOptions);
@@ -777,9 +772,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     orderCreate(item, price, gotOptions = {}) {
-        let url = 'Buy/' + CSGOtmAPI.formatItem(item, '/');
+        let url = `Buy/${CSGOtmAPI.formatItem(item, '/')}`;
         price = parseInt(price);
-        url = url + '/' + String(price) + '/' + item.hash;
+        url = `${url}/${String(price)}/${item.hash}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -793,9 +788,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     orderUpdateOrRemove(item, price, gotOptions = {}) {
-        let url = 'Buy/' + CSGOtmAPI.formatItem(item, '/');
+        let url = `Buy/${CSGOtmAPI.formatItem(item, '/')}`;
         price = parseInt(price);
-        url = url + '/' + String(price);
+        url = `${url}/${String(price)}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -809,9 +804,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     orderProcess(item, price, gotOptions = {}) {
-        let url = 'Buy/' + CSGOtmAPI.formatItem(item, '/');
+        let url = `Buy/${CSGOtmAPI.formatItem(item, '/')}`;
         price = parseInt(price);
-        url = url + '/' + String(price);
+        url = `${url}/${String(price)}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -875,9 +870,9 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     notificationProcess(item, price, gotOptions = {}) {
-        let url = 'UpdateNotification/' + CSGOtmAPI.formatItem(item, '/');
+        let url = `UpdateNotification/${CSGOtmAPI.formatItem(item, '/')}`;
         price = parseInt(price);
-        url = url + '/' + String(price);
+        url = `${url}/${String(price)}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -911,7 +906,7 @@ class CSGOtmAPI {
         });
 
         gotOptions.body = {
-            list: list
+            list
         };
 
         return this.callMethodWithKey('MassSearchItemByName', gotOptions);
@@ -925,9 +920,8 @@ class CSGOtmAPI {
      *
      * @returns {Promise}
      */
-    searchItemByName(item, gotOptions = {}) {
-        item = item || {};
-        let url = 'SearchItemByName/' + item.market_hash_name;
+    searchItemByName(item={}, gotOptions = {}) {
+        let url = `SearchItemByName/${item.market_hash_name}`;
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -957,7 +951,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     quickBuy(itemId, gotOptions = {}) {
-        return this.callMethodWithKey('QuickBuy/' + String(itemId), gotOptions);
+        return this.callMethodWithKey(`QuickBuy/${String(itemId)}`, gotOptions);
     }
 
     /**
@@ -1008,11 +1002,10 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     additionalCheckBotStatus(botId, gotOptions = {}) {
-        return this.callMethodWithKey('CheckBotStatus/' + String(botId), gotOptions);
+        return this.callMethodWithKey(`CheckBotStatus/${String(botId)}`, gotOptions);
     }
 }
 
-module.exports.API = CSGOtmAPI;
-module.exports.CSGOtmAPIError = CSGOtmAPIError;
-
+export {CSGOtmAPI as API};
+export {CSGOtmAPIError};
 
