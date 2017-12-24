@@ -213,7 +213,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     callMethodWithKey(method, gotOptions = {}) {
-        let url = `${this.apiUrl}/${method}/?key=${this.options.apiKey}`;
+        let url = `${this.apiUrl}/${encodeURI(method)}/?key=${this.options.apiKey}`;
         if (!Object.keys(gotOptions).length) {
             gotOptions = this.options.defaultGotOptions;
         }
