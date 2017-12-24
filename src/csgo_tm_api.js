@@ -172,7 +172,7 @@ class CSGOtmAPI {
     static formatItem(item={}, symbol = '_') {
         // For different property names in API
         let classId = item.i_classid || item.classid || item.classId;
-        let instanceId = item.i_instanceid || item.instanceid || item.instanceId;
+        let instanceId = item.i_instanceid || item.instanceid || item.instanceId || 0;
 
         classId = String(classId);
         instanceId = String(instanceId);
