@@ -234,7 +234,8 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     callItemMethod(item, method, gotOptions = {}) {
-        method = method + CSGOtmAPI.formatItem(item);
+        method = `${method}/${CSGOtmAPI.formatItem(item)}`;
+
         return this.callMethodWithKey(method, gotOptions);
     }
 
