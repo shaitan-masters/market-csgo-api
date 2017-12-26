@@ -162,6 +162,19 @@ class CSGOtmAPI {
     }
 
     /**
+     * Formalizes some item ids
+     *
+     * @param item
+     * @return {{classId: string, instanceId: string}}
+     */
+    static getItemIds(item={}) {
+        return {
+            classId: String(item.i_classid || item.classid || item.classId),
+            instanceId: String(item.i_instanceid || item.instanceid || item.instanceId || 0)
+        }
+    }
+
+    /**
      * Format item to needed query string
      *
      * @param {Object} item
@@ -170,14 +183,9 @@ class CSGOtmAPI {
      * @returns {string}
      */
     static formatItem(item={}, symbol = '_') {
-        // For different property names in API
-        let classId = item.i_classid || item.classid || item.classId;
-        let instanceId = item.i_instanceid || item.instanceid || item.instanceId || 0;
+        let ids = CSGOtmAPI.getItemIds(item);
 
-        classId = String(classId);
-        instanceId = String(instanceId);
-
-        return classId + symbol + instanceId;
+        return ids.classId + symbol + ids.instanceId;
     }
 
     /**
