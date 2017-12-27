@@ -743,7 +743,12 @@ class CSGOtmAPI {
     buyCreate(item, price, gotOptions = {}) {
         let url = `Buy/${CSGOtmAPI.formatItem(item)}`;
         price = parseInt(price);
-        url = `${url}/${String(price)}/${item.hash}`;
+
+        url = `${url}/${String(price)}`;
+        if(item.hash) {
+            url += `/${item.hash}`;
+        }
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
