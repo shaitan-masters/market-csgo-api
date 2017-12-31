@@ -162,6 +162,19 @@ class CSGOtmAPI {
     }
 
     /**
+     * Formalizes some item ids
+     *
+     * @param item
+     * @return {{classId: string, instanceId: string}}
+     */
+    static getItemIds(item={}) {
+        return {
+            classId: String(item.i_classid || item.classid || item.classId),
+            instanceId: String(item.i_instanceid || item.instanceid || item.instanceId || 0)
+        }
+    }
+
+    /**
      * Format item to needed query string
      *
      * @param {Object} item
@@ -170,14 +183,9 @@ class CSGOtmAPI {
      * @returns {string}
      */
     static formatItem(item={}, symbol = '_') {
-        // For different property names in API
-        let classId = item.i_classid || item.classid || item.classId;
-        let instanceId = item.i_instanceid || item.instanceid || item.instanceId;
+        let ids = CSGOtmAPI.getItemIds(item);
 
-        classId = String(classId);
-        instanceId = String(instanceId);
-
-        return classId + symbol + instanceId;
+        return ids.classId + symbol + ids.instanceId;
     }
 
     /**
@@ -213,7 +221,7 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     callMethodWithKey(method, gotOptions = {}) {
-        let url = `${this.apiUrl}/${method}/?key=${this.options.apiKey}`;
+        let url = `${this.apiUrl}/${encodeURI(method)}/?key=${this.options.apiKey}`;
         if (!Object.keys(gotOptions).length) {
             gotOptions = this.options.defaultGotOptions;
         }
@@ -234,7 +242,8 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     callItemMethod(item, method, gotOptions = {}) {
-        method = method + CSGOtmAPI.formatItem(item);
+        method = `${method}/${CSGOtmAPI.formatItem(item)}`;
+
         return this.callMethodWithKey(method, gotOptions);
     }
 
@@ -734,7 +743,12 @@ class CSGOtmAPI {
     buyCreate(item, price, gotOptions = {}) {
         let url = `Buy/${CSGOtmAPI.formatItem(item)}`;
         price = parseInt(price);
-        url = `${url}/${String(price)}/${item.hash}`;
+
+        url = `${url}/${String(price)}`;
+        if(item.hash) {
+            url += `/${item.hash}`;
+        }
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
