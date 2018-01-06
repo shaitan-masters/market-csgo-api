@@ -48,7 +48,7 @@ All API-call methods return Promise, and they have `gotOptions` param for [got](
 
 Many of methods **require** `item` in the params. It should be an object with properties:
 - `i_classid` or `classid` or `classId`
-- `i_instanceid` or `instanceid` or `instanceId`
+- `i_instanceid` or `instanceid` or `instanceId` or `ui_real_instance`
 
 ## Example
 

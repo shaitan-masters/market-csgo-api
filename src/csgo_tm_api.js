@@ -168,11 +168,16 @@ class CSGOtmAPI {
      * @return {{classId: string, instanceId: string}}
      */
     static getItemIds(item={}) {
-        return {
+        let ids = {
             classId: String(item.i_classid || item.classid || item.classId),
-            instanceId: String(item.i_instanceid || item.instanceid || item.instanceId || 0)
+            instanceId: String(item.i_instanceid || item.instanceid || item.instanceId || 0),
+        };
+        if(ids.instanceId === '0' && item.ui_real_instance) {
+            ids.instanceId = String(item.ui_real_instance);
         }
-    }
+
+        return ids;
+    };
 
     /**
      * Format item to needed query string
