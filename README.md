@@ -1,7 +1,7 @@
 # CSGO.tm API
 
 This is a node module for interacting with the csgo.tm API.
-Docs available [here](https://csgo.tm/docs/)
+Docs available [here](https://market.csgo.com/docs/)
 
 ## Installation
 
@@ -35,7 +35,7 @@ Params:
 ## Methods
 
 All API-call methods return Promise, and they have `gotOptions` param for [got](https://github.com/sindresorhus/got) module
-#### All methods are divided into blocks with a special prefix (except static) like in [docs](https://csgo.tm/docs/)
+#### All methods are divided into blocks with a special prefix (except static) like in [docs](https://market.csgo.com/docs/)
 - `account`
 - `item`
 - `sell`
