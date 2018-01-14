@@ -8,7 +8,7 @@ import parseCSV from 'csv-parse';
 /**
  * API error
  */
-class CSGOtmAPIError extends Error{
+class CSGOtmAPIError extends Error {
     constructor(message) {
         super(message);
         this.name = this.constructor.name;
@@ -18,29 +18,40 @@ class CSGOtmAPIError extends Error{
 
 /**
  * API
- * https://csgo.tm/docs/
+ * https://market.csgo.com/docs/
  */
 class CSGOtmAPI {
+    static defaultAppId = 730;
+    static defaultBaseUrl = 'https://market.csgo.com/';
+
     /**
-     * @param {Object} options
+     * @param {Object} [options]
      *
-     * {String}     [options.baseUrl='https://market.csgo.com/'] Base url
-     * {String}     [options.apiPath='api'] Relative path to api
-     * {String}     [options.apiKey=false] API key (required)
-     * {Boolean}    [options.useLimiter=true] Using request limiter
-     * {Object}     [options.defaultGotOptions={}] Default parameters for 'got' module
-     * {Object}     [options.limiterOptions={}] Parameters for 'bottleneck' module
+     * @property {String}     [options.baseUrl='https://market.csgo.com/'] Base url with trailing slash
+     * @property {String}     [options.apiPath='api'] Relative path to api
+     * @property {String}     [options.apiKey=false] API key (required)
+     * @property {Boolean}    [options.useLimiter=true] Using request limiter
+     * @property {Object}     [options.defaultGotOptions={}] Default parameters for 'got' module
+     * @property {Object}     [options.limiterOptions={}] Parameters for 'bottleneck' module
+     * @property {String}     [options.htmlAnswerLogPath=null] Path, where HTML answers from API would be saved
      *
      * @throws {CSGOtmAPIError}
+     * @todo: add html answers logging
      */
     constructor(options={}) {
         if (!options.apiKey) {
             throw new CSGOtmAPIError('API key required');
         }
+        // Adds trailing slash
+        if (options.baseUrl) {
+            if(options.baseUrl.endsWith('/')) {
+                options.baseUrl += '/';
+            }
+        }
 
         this.options = {};
         extend(true, this.options, {
-            baseUrl: 'https://market.csgo.com/',
+            baseUrl: CSGOtmAPI.defaultBaseUrl,
             apiPath: 'api',
             useLimiter: true,
             limiterOptions: {
@@ -50,7 +61,8 @@ class CSGOtmAPI {
                 strategy: Bottleneck.strategy.LEAK,
                 rejectOnDrop: true
             },
-            defaultGotOptions: {}
+            defaultGotOptions: {},
+            htmlAnswerLogPath: null
         }, options);
 
         /**
@@ -71,6 +83,7 @@ class CSGOtmAPI {
 
     /**
      * Available languages
+     *
      * @returns {{EN: string, RU: string}}
      */
     static get LANGUAGES() {
@@ -84,14 +97,14 @@ class CSGOtmAPI {
     /**
      * JSON request
      *
-     * @param url
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {String} url
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     static requestJSON(url, gotOptions = {}) {
-        gotOptions = gotOptions || {};
-        gotOptions = clone(gotOptions);
+        gotOptions = clone(gotOptions || {});
+        // todo: parse json by hands to catch html pages instead of json answer
         gotOptions.json = true;
 
         return new Promise((resolve, reject) => {
@@ -115,16 +128,32 @@ class CSGOtmAPI {
     }
 
     /**
-     * Get current database file data
+     * Get current item DB name
      *
-     * @param {String} dbName
-     * @param {String} baseUrl
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Number} [appId] Steam app id that we want to get
+     * @param {String} [baseUrl] Market base url
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
-    static itemDb(dbName, baseUrl = 'https://market.csgo.com/', gotOptions = {}) {
+    static dbName(appId = CSGOtmAPI.defaultAppId, baseUrl = CSGOtmAPI.defaultBaseUrl, gotOptions = {}) {
+        let url = `${baseUrl}itemdb/current_${appId}.json`;
+
+        return CSGOtmAPI.requestJSON(url, gotOptions);
+    }
+
+    /**
+     * Get current database file data
+     *
+     * @param {String} dbName
+     * @param {String} [baseUrl] Market base url
+     * @param {Object} [gotOptions] Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    static itemDb(dbName, baseUrl = CSGOtmAPI.defaultBaseUrl, gotOptions = {}) {
         let url = `${baseUrl}itemdb/${dbName}`;
+
         return new Promise((resolve, reject) => {
             got(url, gotOptions).then(response => {
                 parseCSV(
@@ -149,45 +178,71 @@ class CSGOtmAPI {
     }
 
     /**
-     * Get list of the last 50 purchases
+     * Gets current item DB from CSGO.TM
      *
-     * @param {String} baseUrl
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Number} [appId] Steam app id that we want to get
+     * @param {String} [baseUrl] Market base url
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
-    static history(baseUrl = 'https://market.csgo.com/', gotOptions = {}) {
+    static currentItemDb(appId = CSGOtmAPI.defaultAppId, baseUrl = CSGOtmAPI.defaultBaseUrl, gotOptions = {}) {
+        return CSGOtmAPI.dbName(appId, baseUrl, gotOptions).then((data) => {
+            return CSGOtmAPI.itemDb(data.db, baseUrl, gotOptions);
+        });
+    }
+
+    /**
+     * Get list of the last 50 purchases
+     *
+     * @param {String} [baseUrl] Market base url
+     * @param {Object} [gotOptions] Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    static history(baseUrl = CSGOtmAPI.defaultBaseUrl, gotOptions = {}) {
         let url = `${baseUrl}history/json/`;
+
         return CSGOtmAPI.requestJSON(url, gotOptions);
     }
 
     /**
      * Formalizes some item ids
      *
-     * @param item
-     * @return {{classId: string, instanceId: string}}
+     * @param {Object} item Item object that you got from API, or you have created by yourself
+     * @param {Boolean} [asNumbers] Should we convert ids to numbers?
+     *
+     * @returns {{classId: string, instanceId: string}}
      */
-    static getItemIds(item={}) {
+    static getItemIds(item, asNumbers=false) {
         let ids = {
             classId: String(item.i_classid || item.classid || item.classId),
             instanceId: String(item.i_instanceid || item.instanceid || item.instanceId || 0),
         };
-        if(ids.instanceId === '0' && item.ui_real_instance) {
+        if (ids.instanceId === '0' && item.ui_real_instance) {
             ids.instanceId = String(item.ui_real_instance);
         }
 
-        return ids;
-    };
+        if (!asNumbers) {
+            return ids;
+        }
+        else {
+            return {
+                classId: Number(ids.classId),
+                instanceId: Number(ids.instanceId),
+            };
+        }
+    }
 
     /**
      * Format item to needed query string
      *
-     * @param {Object} item
-     * @param {String} symbol
+     * @param {Object} item Item object that you got from API, or you have created by yourself
+     * @param {String} [symbol] Separator
      *
      * @returns {string}
      */
-    static formatItem(item={}, symbol = '_') {
+    static formatItem(item, symbol = '_') {
         let ids = CSGOtmAPI.getItemIds(item);
 
         return ids.classId + symbol + ids.instanceId;
@@ -195,6 +250,7 @@ class CSGOtmAPI {
 
     /**
      * Get API url
+     *
      * @returns {string}
      */
     get apiUrl() {
@@ -221,7 +277,7 @@ class CSGOtmAPI {
      * Simple API call with key
      *
      * @param {String} method
-     * @param {Object} gotOptions
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -242,7 +298,7 @@ class CSGOtmAPI {
      *
      * @param {Object} item
      * @param {String} method
-     * @param {Object} gotOptions
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -262,7 +318,7 @@ class CSGOtmAPI {
     /**
      * Getting the Steam inventory, only those items that you have not already put up for sale
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -273,7 +329,7 @@ class CSGOtmAPI {
     /**
      * Getting the info about items in trades
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -284,7 +340,7 @@ class CSGOtmAPI {
     /**
      * Get account balance
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -295,7 +351,7 @@ class CSGOtmAPI {
     /**
      * Ping that you in online
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -306,7 +362,7 @@ class CSGOtmAPI {
     /**
      * Stop your trades
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -318,19 +374,20 @@ class CSGOtmAPI {
      * Set token
      *
      * @param {String} token from steam trade url
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     accountSetToken(token, gotOptions = {}) {
         let method = `SetToken/${token}`;
+
         return this.callMethodWithKey(method, gotOptions);
     }
 
     /**
      * Get token
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -341,7 +398,7 @@ class CSGOtmAPI {
     /**
      * Get key for auth on websockets
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -352,7 +409,7 @@ class CSGOtmAPI {
     /**
      * Update cache of steam inventory
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -363,7 +420,7 @@ class CSGOtmAPI {
     /**
      * Getting cache status of inventory
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -376,7 +433,7 @@ class CSGOtmAPI {
      *
      * @param {Date} from
      * @param {Date} to
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -386,13 +443,14 @@ class CSGOtmAPI {
         let toUnixtime = Math.floor(to.getTime() / 1000);
 
         method = util.format(method, fromUnixtime, toUnixtime);
+
         return this.callMethodWithKey(method, gotOptions);
     }
 
     /**
      * Getting discounts
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -403,7 +461,7 @@ class CSGOtmAPI {
     /**
      * Getting counters from https://market.csgo.com/sell/
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -415,7 +473,7 @@ class CSGOtmAPI {
      * Getting items of profile with hash
      *
      * @param {String} hash
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -426,7 +484,7 @@ class CSGOtmAPI {
     /**
      * Getting items from sell offers
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -437,7 +495,7 @@ class CSGOtmAPI {
     /**
      * Get a list of items that have been sold and must be passed to the market bot using the ItemRequest method.
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -456,8 +514,8 @@ class CSGOtmAPI {
      * Get item info
      *
      * @param {Object} item
-     * @param {String} language One of static LANGUAGES
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {String} [language='ru'] One of static LANGUAGES
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -465,6 +523,7 @@ class CSGOtmAPI {
         let url = `ItemInfo/${CSGOtmAPI.formatItem(item)}`;
         language = language || CSGOtmAPI.LANGUAGES.RU;
         url = `${url}/${language}`;
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -472,7 +531,7 @@ class CSGOtmAPI {
      * Get item history
      *
      * @param {Object} item
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -484,7 +543,7 @@ class CSGOtmAPI {
      * Get item hash of 'Float Value'
      *
      * @param {Object} item
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -496,7 +555,7 @@ class CSGOtmAPI {
      * Get item sell offers
      *
      * @param {Object} item
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -508,7 +567,7 @@ class CSGOtmAPI {
      * Get item bet sell offer
      *
      * @param {Object} item
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -520,7 +579,7 @@ class CSGOtmAPI {
      * Get item buy offers
      *
      * @param {Object} item
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -532,7 +591,7 @@ class CSGOtmAPI {
      * Get item best buy offer
      *
      * @param {Object} item
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -544,7 +603,7 @@ class CSGOtmAPI {
      * Get item description for method 'buy'
      *
      * @param {Object} item
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -554,6 +613,7 @@ class CSGOtmAPI {
 
     /**
      * Available types of 'SELL' and 'BUY' param in 'MassInfo' request
+     *
      * @returns {{NOTHING: number, TOP_50_SUGGESTIONS: number, TOP_SUGGESTION: number}}
      */
     static get MASS_INFO_SELL_BUY() {
@@ -566,6 +626,7 @@ class CSGOtmAPI {
 
     /**
      * Available types of 'HISTORY' param in 'MassInfo' request
+     *
      * @returns {{NOTHING: number, LAST_100_SELLS: number, LAST_10_SELLS: number}}
      */
     static get MASS_INFO_HISTORY() {
@@ -577,7 +638,8 @@ class CSGOtmAPI {
     };
 
     /**
-     * Available types of 'INFO' param in 'MassInfo' request
+     * Available types of 'INFO' param in `MassInfo` request
+     *
      * @returns {{NOTHING: number, BASE: number, EXTENDED: number, MAXIMUM: number}}
      */
     static get MASS_INFO_INFO() {
@@ -590,17 +652,35 @@ class CSGOtmAPI {
     };
 
     /**
+     * Default params that will be substituted, when user did not provide some of them
+     *
+     * @returns {{sell: number, buy: number, history: number, info: number}}
+     */
+    private static get DEFAULT_MASS_INFO_PARAMS() {
+        return {
+            sell: CSGOtmAPI.MASS_INFO_SELL_BUY.NOTHING,
+            buy: CSGOtmAPI.MASS_INFO_SELL_BUY.NOTHING,
+            history: CSGOtmAPI.MASS_INFO_HISTORY.NOTHING,
+            info: CSGOtmAPI.MASS_INFO_INFO.BASE,
+        };
+    };
+
+
+    /**
      * Getting more info about item
      *
      * @param {Array|Object} items One item or array of items
-     * @param {Object} params Request params
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [params] Request params
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     itemMassInfo(items, params = {}, gotOptions = {}) {
         if (!Object.keys(gotOptions).length) {
             gotOptions = clone(this.options.defaultGotOptions);
+        }
+        else {
+            gotOptions = clone(gotOptions);
         }
 
         // [SELL], [BUY], [HISTORY], [INFO]
@@ -611,10 +691,7 @@ class CSGOtmAPI {
         }
 
         params = params || {};
-        params.sell = params.sell || CSGOtmAPI.MASS_INFO_SELL_BUY.NOTHING;
-        params.buy = params.buy || CSGOtmAPI.MASS_INFO_SELL_BUY.NOTHING;
-        params.history = params.history || CSGOtmAPI.MASS_INFO_HISTORY.NOTHING;
-        params.info = params.info || CSGOtmAPI.MASS_INFO_INFO.BASE;
+        extend(true, params, CSGOtmAPI.DEFAULT_MASS_INFO_PARAMS);
 
         url = util.format(url,
             params.sell,
@@ -644,9 +721,9 @@ class CSGOtmAPI {
     /**
      * Creating new sell
      *
-     * @param item
+     * @param {Object} item
      * @param {Number} price
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -654,6 +731,7 @@ class CSGOtmAPI {
         let url = `SetPrice/new_${CSGOtmAPI.formatItem(item)}`;
         price = parseInt(price);
         url = `${url}/${String(price)}`;
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -662,7 +740,7 @@ class CSGOtmAPI {
      *
      * @param {String} itemId Item ui_id from 'accountGetTrades' method
      * @param {Number} price
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -670,11 +748,13 @@ class CSGOtmAPI {
         let url = `SetPrice/${String(itemId)}`;
         price = parseInt(price);
         url = `${url}/${String(price)}`;
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
     /**
-     * Available types of \sellCreateTradeRequest\ method
+     * Available types of `sellCreateTradeRequest` method
+     *
      * @returns {{IN: string, OUT: string}}
      */
     static get CREATE_TRADE_REQUEST_TYPE() {
@@ -689,13 +769,13 @@ class CSGOtmAPI {
      *
      * @param {String} botId Bot ui_bid from 'accountGetTrades' method (with ui_status = 4)
      * @param {String} type CREATE_TRADE_REQUEST_TYPE type
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     sellCreateTradeRequest(botId, type = 'out', gotOptions = {}) {
         let types = CSGOtmAPI.CREATE_TRADE_REQUEST_TYPE;
-        if (![types.IN, types.OUT].includes(type)) {
+        if (!types[type]) {
             type = types.OUT;
         }
 
@@ -706,7 +786,7 @@ class CSGOtmAPI {
     /**
      * Getting market trades
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -717,17 +797,54 @@ class CSGOtmAPI {
     /**
      * Massive update prices
      *
-     * @param {Object} item
+     * @param {Object} item Item object with claasid and instanceid or with market_hash_name
      * @param {Number} price
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     sellMassUpdatePrice(item, price, gotOptions = {}) {
-        let url = `MassSetPrice/${CSGOtmAPI.formatItem(item)}`;
+        let name;
+        try {
+            name = CSGOtmAPI.formatItem(item);
+        } catch(e) {
+            name = item.market_hash_name || item.market_name;
+        }
+
+        let url = `MassSetPrice/${name}`;
         price = parseInt(price);
         url = `${url}/${String(price)}`;
+
         return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
+     * Massive update prices by item id
+     *
+     * @param {Object} prices Object with item ui_id as a key and its new price as value
+     * @param {Object} [gotOptions]
+     * @todo: untested
+     *
+     * @return {Promise}
+     */
+    sellMassUpdatePriceById(prices, gotOptions = {}) {
+        if (!Object.keys(gotOptions).length) {
+            gotOptions = clone(this.options.defaultGotOptions);
+        }
+        else {
+            gotOptions = clone(gotOptions);
+        }
+
+        let list = {};
+        for(let ui_id in prices) {
+            list[Number(ui_id)] = Number(prices[ui_id]);
+        }
+
+        gotOptions.body = {
+            list
+        };
+
+        return this.callMethodWithKey('MassSetPriceById', gotOptions);
     }
 
     /**
@@ -739,18 +856,18 @@ class CSGOtmAPI {
     /**
      * Creating new buy
      *
-     * @param {Object} item
+     * @param {Object} item May have hash property
      * @param {Number} price
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     buyCreate(item, price, gotOptions = {}) {
         let url = `Buy/${CSGOtmAPI.formatItem(item)}`;
         price = parseInt(price);
-
         url = `${url}/${String(price)}`;
-        if(item.hash) {
+
+        if (item.hash) {
             url += `/${item.hash}`;
         }
 
@@ -767,7 +884,7 @@ class CSGOtmAPI {
      * Getting list of orders
      *
      * @param {Number} page For pagination
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -786,14 +903,19 @@ class CSGOtmAPI {
      *
      * @param {Object} item
      * @param {Number} price
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     orderCreate(item, price, gotOptions = {}) {
-        let url = `Buy/${CSGOtmAPI.formatItem(item, '/')}`;
+        let url = `InsertOrder/${CSGOtmAPI.formatItem(item, '/')}`;
         price = parseInt(price);
-        url = `${url}/${String(price)}/${item.hash}`;
+        url = `${url}/${String(price)}`;
+
+        if (item.hash) {
+            url += `/${item.hash}`;
+        }
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -802,14 +924,15 @@ class CSGOtmAPI {
      *
      * @param {Object} item
      * @param {Number} price
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     orderUpdateOrRemove(item, price, gotOptions = {}) {
-        let url = `Buy/${CSGOtmAPI.formatItem(item, '/')}`;
+        let url = `UpdateOrder/${CSGOtmAPI.formatItem(item, '/')}`;
         price = parseInt(price);
         url = `${url}/${String(price)}`;
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -818,21 +941,22 @@ class CSGOtmAPI {
      *
      * @param {Object} item
      * @param {Number} price
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     orderProcess(item, price, gotOptions = {}) {
-        let url = `Buy/${CSGOtmAPI.formatItem(item, '/')}`;
+        let url = `ProcessOrder/${CSGOtmAPI.formatItem(item, '/')}`;
         price = parseInt(price);
         url = `${url}/${String(price)}`;
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
     /**
      * Deleting all orders
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -843,7 +967,7 @@ class CSGOtmAPI {
     /**
      * Getting status of order system
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -854,7 +978,7 @@ class CSGOtmAPI {
     /**
      * Getting the last 100 orders
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -871,7 +995,7 @@ class CSGOtmAPI {
     /**
      * Getting notification
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -884,7 +1008,7 @@ class CSGOtmAPI {
      *
      * @param {Object} item
      * @param {Number} price
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -892,6 +1016,7 @@ class CSGOtmAPI {
         let url = `UpdateNotification/${CSGOtmAPI.formatItem(item, '/')}`;
         price = parseInt(price);
         url = `${url}/${String(price)}`;
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -904,14 +1029,17 @@ class CSGOtmAPI {
     /**
      * Searching items by names
      *
-     * @param {Array|Object} items One item or array of items
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Array|Object} items One item or array of items with market_hash_name properties
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
     searchItemsByName(items, gotOptions = {}) {
         if (!Object.keys(gotOptions).length) {
             gotOptions = clone(this.options.defaultGotOptions);
+        }
+        else {
+            gotOptions = clone(gotOptions);
         }
 
         if (!Array.isArray(items)) {
@@ -932,15 +1060,18 @@ class CSGOtmAPI {
     }
 
     /**
-     * Searching one item by name
+     * Searching one item by hash name
      *
-     * @param {Object} item
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object|String} item Item object that you got from API or created by yourself, or just item market hash name
+     * @property {String} item.market_hash_name Item market hash name
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
-    searchItemByName(item={}, gotOptions = {}) {
-        let url = `SearchItemByName/${item.market_hash_name}`;
+    searchItemByName(item, gotOptions = {}) {
+        let mhn = typeof item === 'string' ? item : item.market_hash_name;
+        let url = `SearchItemByName/${mhn}`;
+
         return this.callMethodWithKey(url, gotOptions);
     }
 
@@ -953,7 +1084,7 @@ class CSGOtmAPI {
     /**
      * Getting list of available items for quick buy
      *
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -965,7 +1096,7 @@ class CSGOtmAPI {
      * Quick buy item
      *
      * @param {String} itemId Item ui_id from 'accountGetTrades' method
-     * @param {Object} gotOptions Options for 'got' module
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -982,7 +1113,7 @@ class CSGOtmAPI {
     /**
      * Getting all stickers
      *
-     * @param gotOptions
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -993,7 +1124,7 @@ class CSGOtmAPI {
     /**
      * Test trades possibility
      *
-     * @param gotOptions
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -1004,7 +1135,7 @@ class CSGOtmAPI {
     /**
      * Getting the last messages
      *
-     * @param gotOptions
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
@@ -1016,7 +1147,7 @@ class CSGOtmAPI {
      * Getting the status of bot
      *
      * @param {String} botId Bot ui_bid from 'accountGetTrades' method
-     * @param gotOptions
+     * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
