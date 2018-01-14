@@ -1,9 +1,11 @@
+import fs from 'fs';
 import got from 'got';
 import util from 'util';
 import extend from 'extend';
 import clone from 'clone';
 import Bottleneck from "bottleneck";
 import parseCSV from 'csv-parse';
+import {parse as parseUrl} from 'url';
 
 /**
  * API error
@@ -41,7 +43,6 @@ class CSGOtmAPI {
      * @property {String}     [options.htmlAnswerLogPath=null] Path, where HTML answers from API would be saved
      *
      * @throws {CSGOtmAPIError}
-     * @todo: add html answers logging
      */
     constructor(options={}) {
         if (!options.apiKey) {
@@ -51,6 +52,12 @@ class CSGOtmAPI {
         if (options.baseUrl) {
             if(options.baseUrl.endsWith('/')) {
                 options.baseUrl += '/';
+            }
+        }
+        // Adds trailing slash
+        if (options.htmlAnswerLogPath) {
+            if(options.htmlAnswerLogPath.endsWith('/')) {
+                options.htmlAnswerLogPath += '/';
             }
         }
 
@@ -109,12 +116,31 @@ class CSGOtmAPI {
      */
     static requestJSON(url, gotOptions = {}) {
         gotOptions = clone(gotOptions || {});
-        // todo: parse json by hands to catch html pages instead of json answer
-        gotOptions.json = true;
+        if(!this.options.htmlAnswerLogPath) {
+            gotOptions.json = true;
+        }
 
         return new Promise((resolve, reject) => {
             got(url, gotOptions).then(response => {
-                let body = response.body;
+                let body;
+                if(this.options.htmlAnswerLogPath) {
+                    try {
+                        body = JSON.parse(response.body);
+                    } catch(e) {
+                        let parsedUrl = parseUrl(url);
+
+                        let path = parsedUrl.pathname.replace(/^\/|\/$/g, '');
+                        let fileName = path + new Date().toISOString();
+
+                        fs.writeFile(this.options.htmlAnswerLogPath + fileName, response.body);
+
+                        throw got.ParseError(e, response.statusCode, parsedUrl, response.body);
+                    }
+                }
+                else {
+                    body = response.body;
+                }
+
                 if (body.error) {
                     let errorMessage = String(body.error);
                     if (body.result) {
