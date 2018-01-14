@@ -21,8 +21,13 @@ class CSGOtmAPIError extends Error {
  * https://market.csgo.com/docs/
  */
 class CSGOtmAPI {
-    static defaultAppId = 730;
-    static defaultBaseUrl = 'https://market.csgo.com/';
+    static get defaultAppId() {
+        return 730;
+    }
+
+    static get defaultBaseUrl() {
+        return 'https://market.csgo.com/';
+    };
 
     /**
      * @param {Object} [options]
@@ -652,11 +657,11 @@ class CSGOtmAPI {
     };
 
     /**
-     * Default params that will be substituted, when user did not provide some of them
+     * Default params that will be substituted, when you did not provide some of them
      *
      * @returns {{sell: number, buy: number, history: number, info: number}}
      */
-    private static get DEFAULT_MASS_INFO_PARAMS() {
+    static get DEFAULT_MASS_INFO_PARAMS() {
         return {
             sell: CSGOtmAPI.MASS_INFO_SELL_BUY.NOTHING,
             buy: CSGOtmAPI.MASS_INFO_SELL_BUY.NOTHING,

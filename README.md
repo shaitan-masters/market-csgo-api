@@ -51,6 +51,7 @@ Params:
 - `MASS_INFO_SELL_BUY`: available types of 'SELL' and 'BUY' param in 'MassInfo' request
 - `MASS_INFO_HISTORY`: available types of 'HISTORY' param in 'MassInfo' request
 - `MASS_INFO_INFO`: available types of 'INFO' param in `MassInfo` request
+- `DEFAULT_MASS_INFO_PARAMS`: default params that will be substituted, when you did not provide some of them
 
 ## Methods
 
