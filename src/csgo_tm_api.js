@@ -141,8 +141,9 @@ class CSGOtmAPI {
                     } catch(e) {
                         let parsedUrl = parseUrl(url);
 
-                        let path = parsedUrl.pathname.replace(/^\/|\/$/g, '');
-                        let fileName = path + new Date().toISOString() + '.html';
+                        let urlPath = parsedUrl.pathname.replace(/^\/|\/$/g, '').replace(/[\s/]/, '_');
+                        let dateString = new Date().toISOString();
+                        let fileName = `${urlPath}_${dateString}.html`;
 
                         fs.writeFile(errorSavePath + fileName, error.response.body, (err) => {
                             if (err) {
