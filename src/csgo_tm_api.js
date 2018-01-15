@@ -110,20 +110,21 @@ class CSGOtmAPI {
      * JSON request
      *
      * @param {String} url
+     * @param {String} [savePath]
      * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
-    static requestJSON(url, gotOptions = {}) {
+    static requestJSON(url, savePath = null, gotOptions = {}) {
         gotOptions = clone(gotOptions || {});
-        if(!this.options.htmlAnswerLogPath) {
+        if(!savePath) {
             gotOptions.json = true;
         }
 
         return new Promise((resolve, reject) => {
             got(url, gotOptions).then(response => {
                 let body;
-                if(this.options.htmlAnswerLogPath) {
+                if(savePath) {
                     try {
                         body = JSON.parse(response.body);
                     } catch(e) {
@@ -132,7 +133,7 @@ class CSGOtmAPI {
                         let path = parsedUrl.pathname.replace(/^\/|\/$/g, '');
                         let fileName = path + new Date().toISOString();
 
-                        fs.writeFile(this.options.htmlAnswerLogPath + fileName, response.body);
+                        fs.writeFile(savePath + fileName, response.body);
 
                         throw got.ParseError(e, response.statusCode, parsedUrl, response.body);
                     }
@@ -319,7 +320,7 @@ class CSGOtmAPI {
         }
 
         return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
+            return CSGOtmAPI.requestJSON(url, this.options.htmlAnswerLogPath, gotOptions);
         });
     }
 
