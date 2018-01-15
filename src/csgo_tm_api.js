@@ -110,41 +110,18 @@ class CSGOtmAPI {
      * JSON request
      *
      * @param {String} url
-     * @param {String} [savePath]
+     * @param {String} [errorSavePath=null]
      * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
      */
-    static requestJSON(url, savePath = null, gotOptions = {}) {
+    static requestJSON(url, errorSavePath = null, gotOptions = {}) {
         gotOptions = clone(gotOptions || {});
-        if(!savePath) {
-            gotOptions.json = true;
-        }
+        gotOptions.json = true;
 
         return new Promise((resolve, reject) => {
             got(url, gotOptions).then(response => {
-                let body;
-                if(savePath) {
-                    try {
-                        body = JSON.parse(response.body);
-                    } catch(e) {
-                        let parsedUrl = parseUrl(url);
-
-                        let path = parsedUrl.pathname.replace(/^\/|\/$/g, '');
-                        let fileName = path + new Date().toISOString() + '.html';
-
-                        fs.writeFile(savePath + fileName, response.body, (err) => {
-                            if (err) {
-                                console.log("Failed to save html answer from tm", err);
-                            }
-                        });
-
-                        throw got.ParseError(e, response.statusCode, parsedUrl, response.body);
-                    }
-                }
-                else {
-                    body = response.body;
-                }
+                let body = response.body;
 
                 if (body.error) {
                     let errorMessage = String(body.error);
@@ -158,6 +135,23 @@ class CSGOtmAPI {
                     resolve(body);
                 }
             }).catch(error => {
+                if (errorSavePath) {
+                    try {
+                        JSON.parse(error.response.body);
+                    } catch(e) {
+                        let parsedUrl = parseUrl(url);
+
+                        let path = parsedUrl.pathname.replace(/^\/|\/$/g, '');
+                        let fileName = path + new Date().toISOString() + '.html';
+
+                        fs.writeFile(errorSavePath + fileName, error.response.body, (err) => {
+                            if (err) {
+                                console.log("Failed to save html answer from tm", err);
+                            }
+                        });
+                    }
+                }
+
                 reject(error);
             });
         });
