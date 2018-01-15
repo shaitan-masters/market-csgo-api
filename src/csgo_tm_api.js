@@ -133,7 +133,11 @@ class CSGOtmAPI {
                         let path = parsedUrl.pathname.replace(/^\/|\/$/g, '');
                         let fileName = path + new Date().toISOString() + '.html';
 
-                        fs.writeFile(savePath + fileName, response.body);
+                        fs.writeFile(savePath + fileName, response.body, (err) => {
+                            if (err) {
+                                console.log("Failed to save html answer from tm", err);
+                            }
+                        });
 
                         throw got.ParseError(e, response.statusCode, parsedUrl, response.body);
                     }
