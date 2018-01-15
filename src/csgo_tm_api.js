@@ -131,7 +131,7 @@ class CSGOtmAPI {
                         let parsedUrl = parseUrl(url);
 
                         let path = parsedUrl.pathname.replace(/^\/|\/$/g, '');
-                        let fileName = path + new Date().toISOString();
+                        let fileName = path + new Date().toISOString() + '.html';
 
                         fs.writeFile(savePath + fileName, response.body);
 
