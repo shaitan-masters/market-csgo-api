@@ -50,13 +50,13 @@ class CSGOtmAPI {
         }
         // Adds trailing slash
         if (options.baseUrl) {
-            if(options.baseUrl.endsWith('/')) {
+            if (!options.baseUrl.endsWith('/')) {
                 options.baseUrl += '/';
             }
         }
         // Adds trailing slash
         if (options.htmlAnswerLogPath) {
-            if(options.htmlAnswerLogPath.endsWith('/')) {
+            if (!options.htmlAnswerLogPath.endsWith('/')) {
                 options.htmlAnswerLogPath += '/';
             }
         }
