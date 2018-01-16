@@ -35,7 +35,6 @@ Params:
     rejectOnDrop: true
 }
 ```
-- `options[htmlAnswerLogPath]`: _(experimental)_ where to save all errors that are in html format. *Default: `null`.*
 
 ## Properties
 

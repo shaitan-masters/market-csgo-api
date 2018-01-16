@@ -1,11 +1,9 @@
-import fs from 'fs';
 import got from 'got';
 import util from 'util';
 import extend from 'extend';
 import clone from 'clone';
 import Bottleneck from "bottleneck";
 import parseCSV from 'csv-parse';
-import {parse as parseUrl} from 'url';
 
 /**
  * API error
@@ -40,7 +38,6 @@ class CSGOtmAPI {
      * @property {Boolean}    [options.useLimiter=true] Using request limiter
      * @property {Object}     [options.defaultGotOptions={}] Default parameters for 'got' module
      * @property {Object}     [options.limiterOptions={}] Parameters for 'bottleneck' module
-     * @property {String}     [options.htmlAnswerLogPath=null] Path, where HTML answers from API would be saved
      *
      * @throws {CSGOtmAPIError}
      */
@@ -52,12 +49,6 @@ class CSGOtmAPI {
         if (options.baseUrl) {
             if (!options.baseUrl.endsWith('/')) {
                 options.baseUrl += '/';
-            }
-        }
-        // Adds trailing slash
-        if (options.htmlAnswerLogPath) {
-            if (!options.htmlAnswerLogPath.endsWith('/')) {
-                options.htmlAnswerLogPath += '/';
             }
         }
 
@@ -73,8 +64,7 @@ class CSGOtmAPI {
                 strategy: Bottleneck.strategy.LEAK,
                 rejectOnDrop: true
             },
-            defaultGotOptions: {},
-            htmlAnswerLogPath: null
+            defaultGotOptions: {}
         }, options);
 
         /**
@@ -115,46 +105,24 @@ class CSGOtmAPI {
      *
      * @returns {Promise}
      */
-    static requestJSON(url, errorSavePath = null, gotOptions = {}) {
+    static requestJSON(url, gotOptions = {}) {
         gotOptions = clone(gotOptions || {});
         gotOptions.json = true;
 
-        return new Promise((resolve, reject) => {
-            got(url, gotOptions).then(response => {
-                let body = response.body;
+        return got(url, gotOptions).then(response => {
+            let body = response.body;
 
-                if (body.error) {
-                    let errorMessage = String(body.error);
-                    if (body.result) {
-                        errorMessage += `. ${body.result}`;
-                    }
-
-                    throw new CSGOtmAPIError(errorMessage);
-                }
-                else {
-                    resolve(body);
-                }
-            }).catch(error => {
-                if (errorSavePath) {
-                    try {
-                        JSON.parse(error.response.body);
-                    } catch(e) {
-                        let parsedUrl = parseUrl(url);
-
-                        let urlPath = parsedUrl.pathname.replace(/^\/|\/$/g, '').replace(/[\s/]/, '_');
-                        let dateString = new Date().toISOString();
-                        let fileName = `${urlPath}_${dateString}.html`;
-
-                        fs.writeFile(errorSavePath + fileName, error.response.body, (err) => {
-                            if (err) {
-                                console.log("Failed to save html answer from tm", err);
-                            }
-                        });
-                    }
+            if (body.error) {
+                let errorMessage = String(body.error);
+                if (body.result) {
+                    errorMessage += `. ${body.result}`;
                 }
 
-                reject(error);
-            });
+                throw new CSGOtmAPIError(errorMessage);
+            }
+            else {
+                return body;
+            }
         });
     }
 
@@ -319,7 +287,7 @@ class CSGOtmAPI {
         }
 
         return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, this.options.htmlAnswerLogPath, gotOptions);
+            return CSGOtmAPI.requestJSON(url, gotOptions);
         });
     }
 
