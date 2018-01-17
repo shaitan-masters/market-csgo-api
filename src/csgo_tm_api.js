@@ -4,13 +4,14 @@ import extend from 'extend';
 import clone from 'clone';
 import Bottleneck from "bottleneck";
 import parseCSV from 'csv-parse';
+import NestedError from 'nested-error-stacks';
 
 /**
  * API error
  */
-class CSGOtmAPIError extends Error {
-    constructor(message) {
-        super(message);
+class CSGOtmAPIError extends NestedError {
+    constructor(message, nested) {
+        super(message, nested);
         this.name = this.constructor.name;
     }
 }
@@ -100,7 +101,6 @@ class CSGOtmAPI {
      * JSON request
      *
      * @param {String} url
-     * @param {String} [errorSavePath=null]
      * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
@@ -123,6 +123,8 @@ class CSGOtmAPI {
             else {
                 return body;
             }
+        }).catch(error => {
+            throw new CSGOtmAPIError(error.message, error);
         });
     }
 

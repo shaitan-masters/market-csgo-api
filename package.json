@@ -1,6 +1,6 @@
 {
   "name": "node-csgotm-api",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A module for interacting with the csgo.tm API",
   "main": "lib/index.js",
   "repository": {
@@ -30,7 +30,8 @@
     "clone": "^2.1.1",
     "csv-parse": "^1.2.0",
     "extend": "^3.0.0",
-    "got": "^8.0.2"
+    "got": "^8.0.2",
+    "nested-error-stacks": "^2.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
