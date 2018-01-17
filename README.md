@@ -13,6 +13,10 @@ Docs available [here](https://market.csgo.com/docs/)
 var csgotm = require('node-csgotm-api');
 var api = new csgotm.API(options);
 ```
+or
+```javascript
+import {API as api} from 'node-csgotm-api';
+```
 
 ### Constructor params
 Params:
@@ -32,6 +36,22 @@ Params:
 }
 ```
 
+## Properties
+
+#### Dynamic
+- `options`: merged object of your passed options and default ones
+- `apiUrl`: composed api url from base url and api path
+
+#### Static
+- `defaultAppId`: CS:GO Steam AppId - 730
+- `defaultBaseUrl`: `https://market.csgo.com/`
+- `LANGUAGES`: languages, supported by csgo.tm
+- `CREATE_TRADE_REQUEST_TYPE`: available types of trade requests
+- `MASS_INFO_SELL_BUY`: available types of 'SELL' and 'BUY' param in 'MassInfo' request
+- `MASS_INFO_HISTORY`: available types of 'HISTORY' param in 'MassInfo' request
+- `MASS_INFO_INFO`: available types of 'INFO' param in `MassInfo` request
+- `DEFAULT_MASS_INFO_PARAMS`: default params that will be substituted, when you did not provide some of them
+
 ## Methods
 
 All API-call methods return Promise, and they have `gotOptions` param for [got](https://github.com/sindresorhus/got) module
@@ -45,6 +65,17 @@ All API-call methods return Promise, and they have `gotOptions` param for [got](
 - `search`
 - `quick`
 - `additional`
+
+### Static Methods
+- `requestJSON(url, gotOptions)`
+- `dbName(appId, baseUrl, gotOptions)`
+- `itemDb(dbName, baseUrl, gotOptions)`
+- `currentItemDb(appId, baseUrl, gotOptions)`
+- `history(baseUrl, gotOptions)`
+- `getItemIds(item, asNumbers)`
+- `formatItem(item, symbol)`
+
+----
 
 Many of methods **require** `item` in the params. It should be an object with properties:
 - `i_classid` or `classid` or `classId`
