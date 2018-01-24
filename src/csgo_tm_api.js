@@ -4,14 +4,13 @@ import extend from 'extend';
 import clone from 'clone';
 import Bottleneck from "bottleneck";
 import parseCSV from 'csv-parse';
-import NestedError from 'nested-error-stacks';
 
 /**
  * API error
  */
-class CSGOtmAPIError extends NestedError {
-    constructor(message, nested) {
-        super(message, nested);
+class CSGOtmAPIError extends Error {
+    constructor(message) {
+        super(message);
         this.name = this.constructor.name;
     }
 }
@@ -123,8 +122,6 @@ class CSGOtmAPI {
             else {
                 return body;
             }
-        }).catch(error => {
-            throw new CSGOtmAPIError(error.message, error);
         });
     }
 
@@ -706,6 +703,7 @@ class CSGOtmAPI {
             list.push(CSGOtmAPI.formatItem(item));
         });
 
+        gotOptions.form = true;
         gotOptions.body = {
             list: list.toString()
         };
@@ -841,6 +839,7 @@ class CSGOtmAPI {
             list[Number(ui_id)] = Number(prices[ui_id]);
         }
 
+        gotOptions.form = true;
         gotOptions.body = {
             list
         };
@@ -1053,6 +1052,7 @@ class CSGOtmAPI {
             list.push(item.market_hash_name);
         });
 
+        gotOptions.form = true;
         gotOptions.body = {
             list
         };
