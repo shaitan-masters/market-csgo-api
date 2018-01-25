@@ -16,7 +16,7 @@
   "scripts": {
     "start": "babel -s inline -d lib -w src",
     "build": "babel -s inline -d lib src",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bugs": {
