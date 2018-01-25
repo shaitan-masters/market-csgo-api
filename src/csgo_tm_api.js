@@ -843,6 +843,8 @@ class CSGOtmAPI {
             list[Number(ui_id)] = Number(prices[ui_id]);
         }
 
+<<<<<<< HEAD
+=======
         gotOptions.form = true;
 >>>>>>> pr/2
         gotOptions.body = {
