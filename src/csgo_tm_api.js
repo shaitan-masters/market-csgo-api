@@ -772,13 +772,11 @@ class CSGOtmAPI {
     /**
      * Creating new sell
      *
-     * @param {Object} item
-     * @param {Number} price
+     * @param {Object} item Object with instance_id and class_id
+     * @param {Number} price Price in cents
      * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
-     *
-     * @todo add support to asset_id
      */
     sellCreate(item, price, gotOptions = {}) {
         let url = ['SetPrice', `new_${CSGOtmAPI.formatItem(item)}`, CSGOtmAPI.formatPrice(price)];
@@ -787,10 +785,25 @@ class CSGOtmAPI {
     }
 
     /**
+     * Creating new sell of concrete item
+     *
+     * @param {Object} assetId Steam assetid of item in your inventory
+     * @param {Number} price Price in cents
+     * @param {Object} [gotOptions] Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    sellCreateAsset(assetId, price, gotOptions = {}) {
+        let url = ['SetPrice', `new_asset_${assetId}`, CSGOtmAPI.formatPrice(price)];
+
+        return this.callMethodWithKey(url, gotOptions);
+    }
+
+    /**
      * Updating price of sell
      *
      * @param {String} itemId Item ui_id from 'accountGetTrades' method
-     * @param {Number} price
+     * @param {Number} price Price in cents
      * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
