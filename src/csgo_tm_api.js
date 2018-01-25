@@ -100,7 +100,10 @@ class CSGOtmAPI {
      * JSON request
      *
      * @param {String} url
+<<<<<<< HEAD
      * @param {String} [errorSavePath=null]
+=======
+>>>>>>> pr/2
      * @param {Object} [gotOptions] Options for 'got' module
      *
      * @returns {Promise}
@@ -704,6 +707,7 @@ class CSGOtmAPI {
             list.push(CSGOtmAPI.formatItem(item));
         });
 
+        gotOptions.form = true;
         gotOptions.body = {
             list: list.toString()
         };
@@ -839,6 +843,8 @@ class CSGOtmAPI {
             list[Number(ui_id)] = Number(prices[ui_id]);
         }
 
+        gotOptions.form = true;
+>>>>>>> pr/2
         gotOptions.body = {
             list
         };
@@ -1051,6 +1057,7 @@ class CSGOtmAPI {
             list.push(item.market_hash_name);
         });
 
+        gotOptions.form = true;
         gotOptions.body = {
             list
         };
