@@ -117,7 +117,12 @@ class CSGOtmAPI {
                     errorMessage += `. ${body.result}`;
                 }
 
-                throw new CSGOtmAPIError(errorMessage);
+                let error = new CSGOtmAPIError(errorMessage);
+                error.url = url;
+                error.response = response;
+                error.gotOptions = gotOptions;
+
+                throw error;
             }
             else {
                 return body;
