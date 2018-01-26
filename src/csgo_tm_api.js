@@ -119,7 +119,7 @@ class CSGOtmAPI {
 
                 let error = new CSGOtmAPIError(errorMessage);
                 error.requestedUrl = url;
-                error.jsonResponse = response;
+                error.response = response;
                 error.gotOptions = gotOptions;
 
                 throw error;
