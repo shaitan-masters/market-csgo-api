@@ -36,6 +36,7 @@ class CSGOtmAPI {
      * @property {String}     [options.apiPath='api'] Relative path to api
      * @property {String}     [options.apiKey=false] API key (required)
      * @property {Boolean}    [options.useLimiter=true] Using request limiter
+     * @property {Boolean}    [options.extendedError=false] Should module return full response and got options on market error
      * @property {Object}     [options.defaultGotOptions={}] Default parameters for 'got' module
      * @property {Object}     [options.limiterOptions={}] Parameters for 'bottleneck' module
      *
@@ -57,6 +58,7 @@ class CSGOtmAPI {
             baseUrl: CSGOtmAPI.defaultBaseUrl,
             apiPath: 'api',
             useLimiter: true,
+            extendedError: false,
             limiterOptions: {
                 maxConcurrent: 1, // 1 request at time
                 minTime: 200,  // Max 5 requests per seconds
@@ -304,7 +306,13 @@ class CSGOtmAPI {
         }
 
         return this.limitRequest(() => {
-            return CSGOtmAPI.requestJSON(url, gotOptions);
+            return CSGOtmAPI.requestJSON(url, gotOptions).catch((error) => {
+                if(!this.options.extendedError) {
+                    delete(error.response, error.gotOptions);
+                }
+
+                throw error;
+            });
         });
     }
 
