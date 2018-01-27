@@ -1,6 +1,6 @@
 {
   "name": "node-csgotm-api",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A module for interacting with the csgo.tm API",
   "main": "lib/index.js",
   "repository": {
@@ -16,7 +16,7 @@
   "scripts": {
     "start": "babel -s inline -d lib -w src",
     "build": "babel -s inline -d lib src",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bugs": {
