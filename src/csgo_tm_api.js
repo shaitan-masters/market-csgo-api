@@ -773,7 +773,7 @@ class CSGOtmAPI {
             list.push(CSGOtmAPI.formatItem(item));
         });
 
-        return this.callPostMethodWithKey(url, list.toString(), gotOptions);
+        return this.callPostMethodWithKey(url, {list: list.toString()}, gotOptions);
     }
 
     /**
@@ -1090,7 +1090,7 @@ class CSGOtmAPI {
             list.push(CSGOtmAPI.getItemHash(item));
         });
 
-        return this.callPostMethodWithKey('MassSearchItemByName', list, gotOptions);
+        return this.callPostMethodWithKey('MassSearchItemByName', {list}, gotOptions);
     }
 
     /**
