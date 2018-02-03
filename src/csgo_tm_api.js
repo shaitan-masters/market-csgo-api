@@ -828,6 +828,18 @@ class CSGOtmAPI {
     }
 
     /**
+     * Remove sell from market
+     *
+     * @param {String} itemId Item ui_id from 'accountGetTrades' method
+     * @param {Object} [gotOptions] Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    sellRemove(itemId, gotOptions = {}) {
+        return this.sellUpdatePrice(itemId, 0, gotOptions);
+    }
+
+    /**
      * Available types of `sellCreateTradeRequest` method
      *
      * @returns {{IN: string, OUT: string}}
