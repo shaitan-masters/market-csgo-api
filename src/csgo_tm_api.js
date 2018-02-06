@@ -862,7 +862,8 @@ class CSGOtmAPI {
      */
     sellCreateTradeRequest(botId, type = 'out', gotOptions = {}) {
         let types = CSGOtmAPI.CREATE_TRADE_REQUEST_TYPE;
-        if (!types[type]) {
+        let typeUpper = type.toUpperCase();
+        if (!types[typeUpper]) {
             type = types.OUT;
         }
 
