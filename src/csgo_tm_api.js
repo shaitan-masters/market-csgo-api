@@ -863,8 +863,11 @@ class CSGOtmAPI {
     sellCreateTradeRequest(botId, type = 'out', gotOptions = {}) {
         let types = CSGOtmAPI.CREATE_TRADE_REQUEST_TYPE;
         let typeUpper = type.toUpperCase();
-        if (!types[typeUpper]) {
+        if (!types.hasOwnProperty(typeUpper)) {
             type = types.OUT;
+        }
+        else {
+            type = types[typeUpper];
         }
 
         let url = ['ItemRequest', type, botId];
