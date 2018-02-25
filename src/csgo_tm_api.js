@@ -773,7 +773,7 @@ class CSGOtmAPI {
             list.push(CSGOtmAPI.formatItem(item));
         });
 
-        return this.callPostMethodWithKey(url, list.toString(), gotOptions);
+        return this.callPostMethodWithKey(url, {list: list.toString()}, gotOptions);
     }
 
     /**
@@ -828,6 +828,18 @@ class CSGOtmAPI {
     }
 
     /**
+     * Remove sell from market
+     *
+     * @param {String} itemId Item ui_id from 'accountGetTrades' method
+     * @param {Object} [gotOptions] Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    sellRemove(itemId, gotOptions = {}) {
+        return this.sellUpdatePrice(itemId, 0, gotOptions);
+    }
+
+    /**
      * Available types of `sellCreateTradeRequest` method
      *
      * @returns {{IN: string, OUT: string}}
@@ -850,8 +862,12 @@ class CSGOtmAPI {
      */
     sellCreateTradeRequest(botId, type = 'out', gotOptions = {}) {
         let types = CSGOtmAPI.CREATE_TRADE_REQUEST_TYPE;
-        if (!types[type]) {
+        let typeUpper = type.toUpperCase();
+        if (!types.hasOwnProperty(typeUpper)) {
             type = types.OUT;
+        }
+        else {
+            type = types[typeUpper];
         }
 
         let url = ['ItemRequest', type, botId];
@@ -1090,7 +1106,7 @@ class CSGOtmAPI {
             list.push(CSGOtmAPI.getItemHash(item));
         });
 
-        return this.callPostMethodWithKey('MassSearchItemByName', list, gotOptions);
+        return this.callPostMethodWithKey('MassSearchItemByName', {list}, gotOptions);
     }
 
     /**
