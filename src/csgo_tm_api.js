@@ -62,7 +62,7 @@ class CSGOtmAPI {
             limiterOptions: {
                 maxConcurrent: 1, // 1 request at time
                 minTime: 200,  // Max 5 requests per seconds
-                highWater: -1,
+                highWater: null,
                 strategy: Bottleneck.strategy.LEAK,
                 rejectOnDrop: true
             },
@@ -75,13 +75,7 @@ class CSGOtmAPI {
          */
         if (this.options.useLimiter) {
             let limiterOptions = this.options.limiterOptions;
-            this.limiter = new Bottleneck(
-                limiterOptions.maxConcurrent,
-                limiterOptions.minTime,
-                limiterOptions.highWater,
-                limiterOptions.strategy,
-                limiterOptions.rejectOnDrop
-            );
+            this.limiter = new Bottleneck(limiterOptions);
         }
     }
 
@@ -307,7 +301,7 @@ class CSGOtmAPI {
 
         return this.limitRequest(() => {
             return CSGOtmAPI.requestJSON(url, gotOptions).catch((error) => {
-                if(!this.options.extendedError) {
+                if (!this.options.extendedError) {
                     delete(error.response, error.gotOptions);
                 }
 

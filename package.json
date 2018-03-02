@@ -1,6 +1,6 @@
 {
   "name": "node-csgotm-api",
-  "version": "1.0.11",
+  "version": "1.1.0",
   "description": "A module for interacting with the csgo.tm API",
   "main": "lib/index.js",
   "repository": {
@@ -26,11 +26,11 @@
   "author": "Alexander Dilevskiy",
   "license": "MIT",
   "dependencies": {
-    "bottleneck": "^1.15.1",
+    "bottleneck": "^2.1.0",
     "clone": "^2.1.1",
-    "csv-parse": "^1.2.0",
+    "csv-parse": "^2.0.4",
     "extend": "^3.0.0",
-    "got": "^8.0.2"
+    "got": "^8.2.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
