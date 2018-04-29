@@ -3,7 +3,7 @@ import util from 'util';
 import extend from 'extend';
 import clone from 'clone';
 import Bottleneck from 'bottleneck';
-import parseCSV from 'csv-parse';
+import Papa from 'papaparse';
 
 /**
  * API error
@@ -153,25 +153,10 @@ class CSGOtmAPI {
     static itemDb(dbName, baseUrl = CSGOtmAPI.defaultBaseUrl, gotOptions = {}) {
         let url = `${baseUrl}itemdb/${dbName}`;
 
-        return new Promise((resolve, reject) => {
-            got(url, gotOptions).then(response => {
-                parseCSV(
-                    response.body,
-                    {
-                        columns: true,
-                        delimiter: ';'
-                    },
-                    (err, data) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(data);
-                        }
-                    }
-                );
-            }).catch(error => {
-                reject(error);
+        return got(url, gotOptions).then((response) => {
+            return Papa.parse(response.body, {
+                header: true,
+                delimiter: ';',
             });
         });
     }
@@ -753,7 +738,7 @@ class CSGOtmAPI {
             items = [items];
         }
 
-        extend(true, params, CSGOtmAPI.DEFAULT_MASS_INFO_PARAMS);
+        params = Object.assign({}, CSGOtmAPI.DEFAULT_MASS_INFO_PARAMS, params);
 
         url = util.format(url,
             params.sell,
