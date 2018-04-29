@@ -154,10 +154,19 @@ class CSGOtmAPI {
         let url = `${baseUrl}itemdb/${dbName}`;
 
         return got(url, gotOptions).then((response) => {
-            return Papa.parse(response.body, {
+            let parsed = Papa.parse(response.body, {
                 header: true,
+                trimHeader: true,
                 delimiter: ';',
+                encoding: 'utf8',
+                skipEmptyLines: true,
             });
+
+            if (parsed.errors.length) {
+                throw parsed.errors;
+            }
+
+            return parsed.data;
         });
     }
 
