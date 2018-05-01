@@ -281,30 +281,38 @@ class CSGOtmAPI {
     /**
      * Simple API call with key
      *
-     * @param {String|Array} method
-     * @param {Object} [gotOptions] Options for 'got' module
+     * @param {String|Array} method - method to be called
+     * @param {Object} [params=null] - optional params that may want to pass
+     * @param {Object} [gotOptions={}] Options for 'got' module
      *
      * @returns {Promise}
      */
-    callMethodWithKey(method, gotOptions = {}) {
-        let url = this.formatMethodWithKey(method);
+    callMethodWithKey(method, params = null, gotOptions = {}) {
+        let url = this.formatMethodWithKey(method, params);
 
         return this.callApiUrl(url, gotOptions);
     }
 
     /**
      * @param {String|Array} method
+     * @param {Object} [params=null] - optional params that may want to pass
      * @return {String}
      */
-    formatMethodWithKey(method) {
-        let methodPath = encodeURI(CSGOtmAPI.formatApiCall(method));
+    formatMethodWithKey(method, params) {
+        let completeOptions = {
+            key: this.options.apiKey,
+        };
+        extend(completeOptions, params);
 
-        return `${this.apiUrl}/${methodPath}/?key=${this.options.apiKey}`;
+        let methodPath = encodeURI(CSGOtmAPI.formatApiCall(method));
+        let queryParams = queryStringify(completeOptions);
+
+        return `${this.apiUrl}/${methodPath}/?${queryParams}`;
     }
 
     /**
-     * @param {String} url - Complete url to call
-     * @param {Object} [gotOptions] - Options for 'got' module
+     * @param {String} url - complete url to call
+     * @param {Object} [gotOptions] - options for 'got' module
      *
      * @return {Promise}
      */
@@ -955,19 +963,15 @@ class CSGOtmAPI {
     buyCreate(item, price, tradeData = null, gotOptions = {}) {
         let method = ['Buy', CSGOtmAPI.formatItem(item), CSGOtmAPI.formatPrice(price), item.hash];
 
+        let _partnerData = null;
         if (tradeData && tradeData.partnerId && tradeData.tradeToken) {
-            let _partnerData = {
+            _partnerData = {
                 partner: tradeData.partnerId,
                 token: tradeData.tradeToken,
             };
-            let partner = `(${queryStringify(_partnerData)})`;
-
-            let urlAssembled = this.formatMethodWithKey(method) + partner;
-
-            return this.callApiUrl(urlAssembled, gotOptions);
         }
 
-        return this.callMethodWithKey(method, gotOptions);
+        return this.callMethodWithKey(method, _partnerData, gotOptions);
     }
 
     /**
