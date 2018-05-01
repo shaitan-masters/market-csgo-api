@@ -4,6 +4,7 @@ import extend from 'extend';
 import clone from 'clone';
 import Bottleneck from 'bottleneck';
 import Papa from 'papaparse';
+import {stringify as queryStringify} from 'querystring';
 
 /**
  * API error
@@ -286,9 +287,28 @@ class CSGOtmAPI {
      * @returns {Promise}
      */
     callMethodWithKey(method, gotOptions = {}) {
+        let url = this.formatMethodWithKey(method);
+
+        return this.callApiUrl(url, gotOptions);
+    }
+
+    /**
+     * @param {String|Array} method
+     * @return {String}
+     */
+    formatMethodWithKey(method) {
         let methodPath = encodeURI(CSGOtmAPI.formatApiCall(method));
 
-        let url = `${this.apiUrl}/${methodPath}/?key=${this.options.apiKey}`;
+        return `${this.apiUrl}/${methodPath}/?key=${this.options.apiKey}`;
+    }
+
+    /**
+     * @param {String} url - Complete url to call
+     * @param {Object} [gotOptions] - Options for 'got' module
+     *
+     * @return {Promise}
+     */
+    callApiUrl(url, gotOptions = {}) {
         if (!Object.keys(gotOptions).length) {
             gotOptions = this.options.defaultGotOptions;
         }
@@ -923,16 +943,31 @@ class CSGOtmAPI {
     /**
      * Creating new buy
      *
-     * @param {Object} item May have hash property
-     * @param {Number} price
-     * @param {Object} [gotOptions] Options for 'got' module
+     * @param {Object} item - May have hash property
+     * @param {Number} price - Price to buy on
+     * @param {?Object} [tradeData=null] - Trade data of account that you want to send to
+     * @param {String|Number} [tradeData.partnerId]
+     * @param {String} [tradeData.tradeToken]
+     * @param {Object} [gotOptions={}] Options for 'got' module
      *
      * @returns {Promise}
      */
-    buyCreate(item, price, gotOptions = {}) {
-        let url = ['Buy', CSGOtmAPI.formatItem(item), CSGOtmAPI.formatPrice(price), item.hash];
+    buyCreate(item, price, tradeData = null, gotOptions = {}) {
+        let method = ['Buy', CSGOtmAPI.formatItem(item), CSGOtmAPI.formatPrice(price), item.hash];
 
-        return this.callMethodWithKey(url, gotOptions);
+        if (tradeData && tradeData.partnerId && tradeData.tradeToken) {
+            let _partnerData = {
+                partner: tradeData.partnerId,
+                token: tradeData.tradeToken,
+            };
+            let partner = `(${queryStringify(_partnerData)})`;
+
+            let urlAssembled = this.formatMethodWithKey(method) + partner;
+
+            return this.callApiUrl(urlAssembled, gotOptions);
+        }
+
+        return this.callMethodWithKey(method, gotOptions);
     }
 
     /**
