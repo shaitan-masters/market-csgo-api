@@ -1,7 +1,6 @@
 import got from 'got';
 import util from 'util';
-import extend from 'extend';
-import clone from 'clone';
+import merge from 'merge';
 import Bottleneck from 'bottleneck';
 import Papa from 'papaparse';
 import {stringify as queryStringify} from 'querystring';
@@ -54,8 +53,7 @@ class CSGOtmAPI {
             }
         }
 
-        this.options = {};
-        extend(true, this.options, {
+        this.options = merge.recursive({
             baseUrl: CSGOtmAPI.defaultBaseUrl,
             apiPath: 'api',
             useLimiter: true,
@@ -101,8 +99,8 @@ class CSGOtmAPI {
      *
      * @returns {Promise}
      */
-    static requestJSON(url, gotOptions = {}) {
-        gotOptions = clone(gotOptions || {});
+    static requestJSON(url, gotOptions) {
+        gotOptions = gotOptions ? merge.clone(gotOptions) : {};
         gotOptions.json = true;
 
         return got(url, gotOptions).then(response => {
@@ -282,12 +280,12 @@ class CSGOtmAPI {
      * Simple API call with key
      *
      * @param {String|Array} method - method to be called
-     * @param {Object} [params=null] - optional params that may want to pass
      * @param {Object} [gotOptions={}] Options for 'got' module
+     * @param {Object} [params] - optional params that may want to pass in url
      *
      * @returns {Promise}
      */
-    callMethodWithKey(method, params = null, gotOptions = {}) {
+    callMethodWithKey(method, gotOptions = {}, params = null) {
         let url = this.formatMethodWithKey(method, params);
 
         return this.callApiUrl(url, gotOptions);
@@ -295,14 +293,14 @@ class CSGOtmAPI {
 
     /**
      * @param {String|Array} method
-     * @param {Object} [params=null] - optional params that may want to pass
+     * @param {Object} [params] - optional params that may want to pass in url
+     *
      * @return {String}
      */
-    formatMethodWithKey(method, params) {
-        let completeOptions = {
+    formatMethodWithKey(method, params = null) {
+        let completeOptions = merge.recursive({
             key: this.options.apiKey,
-        };
-        extend(completeOptions, params);
+        }, params);
 
         let methodPath = encodeURI(CSGOtmAPI.formatApiCall(method));
         let queryParams = queryStringify(completeOptions);
@@ -316,8 +314,8 @@ class CSGOtmAPI {
      *
      * @return {Promise}
      */
-    callApiUrl(url, gotOptions = {}) {
-        if (!Object.keys(gotOptions).length) {
+    callApiUrl(url, gotOptions = null) {
+        if (!gotOptions) {
             gotOptions = this.options.defaultGotOptions;
         }
 
@@ -338,19 +336,22 @@ class CSGOtmAPI {
      * @param {String|Array} method
      * @param {Object} [postData]
      * @param {Object} [gotOptions] Options for 'got' module
+     * @param {Object} [params] - optional params that may want to pass in url
      *
      * @returns {Promise}
      */
-    callPostMethodWithKey(method, postData = {}, gotOptions = {}) {
-        if (!Object.keys(gotOptions).length) {
+    callPostMethodWithKey(method, postData = {}, gotOptions = null, params = null) {
+        if (!gotOptions) {
             gotOptions = this.options.defaultGotOptions;
         }
-        gotOptions = clone(gotOptions);
+        let optionsClone = merge.clone(gotOptions);
 
-        gotOptions.form = true;
-        gotOptions.body = postData;
+        let preparedOptions = merge.recursive(optionsClone, {
+            form: true,
+            body: postData,
+        });
 
-        return this.callMethodWithKey(method, gotOptions);
+        return this.callMethodWithKey(method, preparedOptions, params);
     }
 
     /**
@@ -971,7 +972,7 @@ class CSGOtmAPI {
             };
         }
 
-        return this.callMethodWithKey(method, _partnerData, gotOptions);
+        return this.callMethodWithKey(method, gotOptions, _partnerData);
     }
 
     /**

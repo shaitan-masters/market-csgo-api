@@ -30,9 +30,8 @@
   "license": "MIT",
   "dependencies": {
     "bottleneck": "^2.3.0",
-    "clone": "^2.1.1",
-    "extend": "^3.0.0",
-    "got": "^8.3.0",
+    "got": "^8.3.1",
+    "merge": "^1.2.0",
     "papaparse": "^4.4.0"
   },
   "devDependencies": {
