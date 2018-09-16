@@ -25,6 +25,7 @@ Params:
 - `options[apiPath]`: relative path to API. *Default: `api`.*
 - `options[extendedError]`: Should module return full response and got options on market error. Default: `false`.
 - `options[useLimiter]`: enable [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Default: `true`.*
+- `options[gotOptions]`: options for [got](https://github.com/sindresorhus/got) module that would be applied for all API-call methods (except static). *Default: `{}`.*
 - `options[defaultGotOptions]`: default options for [got](https://github.com/sindresorhus/got) module for all API-call methods without `gotOptions` param(except static). *Default: `{}`.*
 - `options[limiterOptions]`: options for [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Default:*
 ```
