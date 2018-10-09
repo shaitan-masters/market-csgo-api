@@ -1,6 +1,6 @@
 {
   "name": "@malsa/node-csgotm-api",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A module for interacting with the market.csgo.com (aka csgo.tm) API",
   "main": "lib/index.js",
   "repository": {
@@ -31,16 +31,16 @@
     "url": "https://github.com/MattRh/node-csgotm-api/issues"
   },
   "homepage": "https://github.com/MattRh/node-csgotm-api#readme",
-  "author": "Alexander Dilevskiy",
+  "author": "Malsa",
   "license": "MIT",
   "dependencies": {
-    "bottleneck": "^2.10.0",
-    "got": "^9.2.1",
+    "bottleneck": "^2.11.2",
+    "got": "^9.2.2",
     "merge": "^1.2.0",
-    "papaparse": "^4.6.0"
+    "papaparse": "^4.6.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-plugin-add-module-exports": "^1.0.0",
     "babel-plugin-transform-object-entries": "^1.0.0",
