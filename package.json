@@ -1,8 +1,7 @@
 {
   "name": "market-csgo-api",
-  "version": "0.1.0",
-  "description": "A module for interacting with the market.csgo.com (aka csgo.tm) API",
-  "main": "lib/index.js",
+  "version": "0.2.0",
+  "description": "A module for interacting with the market.csgo.com API",
   "repository": {
     "type": "git",
     "url": "https://github.com/MattRh/market-csgo-api.git"
@@ -35,13 +34,5 @@
     "got": "^9.2.2",
     "merge": "^1.2.0",
     "papaparse": "^4.6.1"
-  },
-  "devDependencies": {
-    "@babel/preset-env": "^7.1.0",
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2"
-  },
-  "directories": {
-    "lib": "lib"
   }
 }

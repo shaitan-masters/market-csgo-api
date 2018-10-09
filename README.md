@@ -1,21 +1,21 @@
-# CSGO.tm API
+# market.csgo.com API
 
-This is a node module for interacting with the csgo.tm API.
-Docs available [here](https://market.csgo.com/docs/)
+This is a node module for interacting with the market.csgo.com API.
+Docs for endpoints are available [here](https://market.csgo.com/docs/)
 
 ## Installation
 
-`npm install node-csgotm-api`
+`npm install market-csgo-api`
 
 ## Usage
 
 ```javascript
-var csgotm = require('node-csgotm-api');
-var api = new csgotm.API(options);
+const MarketAPI = require('market-csgo-api');
+const api = new MarketAPI(options);
 ```
 or
 ```javascript
-import {API as api} from 'node-csgotm-api';
+import MarketAPI from 'market-csgo-api';
 ```
 
 ### Constructor params
@@ -86,9 +86,10 @@ Many of methods **require** `item` in the params. It should be an object with pr
 ## Example
 
 ```javascript
-api.accountGetTrades().then(trades => {
-  console.log(trades);
-}).catch(error => {
-  console.log(error);
-});
+const MarketAPI = require('market-csgo-api');
+const instance = new MarketAPI({apiKey: 'xxxx'});
+
+(async () => {
+    let trades = await instance.accountGetTrades();
+})()
 ```
