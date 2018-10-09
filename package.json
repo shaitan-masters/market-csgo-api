@@ -1,11 +1,11 @@
 {
-  "name": "@malsa/node-csgotm-api",
-  "version": "1.4.1",
+  "name": "market-csgo-api",
+  "version": "0.1.0",
   "description": "A module for interacting with the market.csgo.com (aka csgo.tm) API",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MattRh/node-csgotm-api.git"
+    "url": "https://github.com/MattRh/market-csgo-api.git"
   },
   "keywords": [
     "node",
@@ -19,20 +19,17 @@
     "sdk"
   ],
   "scripts": {
-    "start": "babel -s inline -d lib -w src",
-    "build": "babel -s inline -d lib src",
-    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "publishConfig": {
     "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/MattRh/node-csgotm-api/issues"
+    "url": "https://github.com/MattRh/market-csgo-api/issues"
   },
-  "homepage": "https://github.com/MattRh/node-csgotm-api#readme",
+  "homepage": "https://github.com/MattRh/market-csgo-api#readme",
   "author": "Malsa",
-  "license": "MIT",
+  "license": "GNU GPLv3",
   "dependencies": {
     "bottleneck": "^2.11.2",
     "got": "^9.2.2",
@@ -40,11 +37,9 @@
     "papaparse": "^4.6.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-plugin-add-module-exports": "^1.0.0",
-    "babel-plugin-transform-object-entries": "^1.0.0",
-    "babel-preset-es2015": "^6.24.1"
+    "@babel/preset-env": "^7.1.0",
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2"
   },
   "directories": {
     "lib": "lib"
