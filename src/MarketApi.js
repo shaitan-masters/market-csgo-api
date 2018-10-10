@@ -113,7 +113,7 @@ class MarketApi {
      *
      * @throws {MarketApiError}
      */
-    construct(options = {}) {
+    constructor(options = {}) {
         if(!options.apiKey) {
             throw new MarketApiError('API key required');
         }
@@ -1257,3 +1257,5 @@ class MarketApi {
         return this.callMethodWithKey(['CheckBotStatus', botId], gotOptions);
     }
 }
+
+module.exports = MarketApi;

@@ -1,7 +1,5 @@
 "use strict";
 
-module.exports = MarketApiError;
-
 /**
  * API error
  */
@@ -12,3 +10,5 @@ class MarketApiError extends Error {
         this.name = this.constructor.name;
     }
 };
+
+module.exports = MarketApiError;
