@@ -330,17 +330,36 @@ class MarketApi {
     }
 
     /**
+     * Non-static hook for API calls with JSON response
+     * @param url
+     * @param gotOptions
+     */
+    requestJsonHook(url, gotOptions = null) {
+        let self = this.constructor;
+
+        return self.requestJSON(url, gotOptions);
+    }
+
+    /**
+     * Non-static hook for API calls with generic response
+     * @param url
+     * @param gotOptions
+     */
+    requestHook(url, gotOptions = null) {
+        return got(url, gotOptions);
+    }
+
+    /**
      * @param {String} url - complete url to call
      * @param {Object} [gotOptions] - options for 'got' module
      *
      * @return {Promise}
      */
     callApiUrl(url, gotOptions = null) {
-        let self = this.constructor;
         let optionsClone = this.makeGotOptions(gotOptions);
 
         return this.limitRequest(() => {
-            return self.requestJSON(url, optionsClone).catch((error) => {
+            return this.requestJsonHook(url, optionsClone).catch((error) => {
                 if(!this.options.extendedError) {
                     delete(error.response, error.gotOptions);
                 }
@@ -416,10 +435,10 @@ class MarketApi {
      *
      * @returns {Promise}
      */
-    static dbName(appId = this.defaultAppId, baseUrl = this.defaultBaseUrl, gotOptions = null) {
+    dbName(appId = this.constructor.defaultAppId, baseUrl = this.constructor.defaultBaseUrl, gotOptions = null) {
         let url = `${baseUrl}itemdb/current_${appId}.json`;
 
-        return this.requestJSON(url, gotOptions);
+        return this.requestJsonHook(url, gotOptions);
     }
 
     /**
@@ -431,10 +450,10 @@ class MarketApi {
      *
      * @returns {Promise}
      */
-    static itemDb(dbName, baseUrl = this.defaultBaseUrl, gotOptions = null) {
+    itemDb(dbName, baseUrl = this.constructor.defaultBaseUrl, gotOptions = null) {
         let url = `${baseUrl}itemdb/${dbName}`;
 
-        return got(url, gotOptions).then((response) => {
+        return this.requestHook(url, gotOptions).then((response) => {
             let parsed = Papa.parse(response.body, {
                 header: true,
                 trimHeader: true,
@@ -460,7 +479,7 @@ class MarketApi {
      *
      * @returns {Promise}
      */
-    static currentItemDb(appId = this.defaultAppId, baseUrl = this.defaultBaseUrl, gotOptions = null) {
+    currentItemDb(appId = this.constructor.defaultAppId, baseUrl = this.constructor.defaultBaseUrl, gotOptions = null) {
         return this.dbName(appId, baseUrl, gotOptions).then((data) => {
             return this.itemDb(data.db, baseUrl, gotOptions);
         });
@@ -474,10 +493,10 @@ class MarketApi {
      *
      * @returns {Promise}
      */
-    static history(baseUrl = this.defaultBaseUrl, gotOptions = null) {
+    history(baseUrl = this.constructor.defaultBaseUrl, gotOptions = null) {
         let url = `${baseUrl}history/json/`;
 
-        return this.requestJSON(url, gotOptions);
+        return this.requestJsonHook(url, gotOptions);
     }
 
     /**
