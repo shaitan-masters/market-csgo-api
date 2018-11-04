@@ -1,6 +1,6 @@
 {
   "name": "market-csgo-api",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A module for interacting with the market.csgo.com API",
   "repository": {
     "type": "git",
@@ -30,9 +30,9 @@
   "author": "Malsa",
   "license": "GNU GPLv3",
   "dependencies": {
-    "bottleneck": "^2.11.2",
-    "got": "^9.2.2",
-    "merge": "^1.2.0",
+    "bottleneck": "^2.13.0",
+    "got": "^9.3.1",
+    "merge": "^1.2.1",
     "papaparse": "^4.6.1"
   }
 }
