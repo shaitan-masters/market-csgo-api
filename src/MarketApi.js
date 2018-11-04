@@ -1176,12 +1176,12 @@ class MarketApi {
             items = [items];
         }
 
-        let list = [];
-        items.forEach(item => {
-            list.push(self.getItemHash(item));
+        let body = {};
+        items.forEach((item, i) => {
+            body[`list[${i}]`] = self.getItemHash(item);
         });
 
-        return this.callPostMethodWithKey('MassSearchItemByName', {list}, gotOptions);
+        return this.callPostMethodWithKey('MassSearchItemByName', body, gotOptions);
     }
 
     /**
