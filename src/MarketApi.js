@@ -257,11 +257,15 @@ class MarketApi {
     /**
      * Formal way to get item market_hash_name
      *
-     * @param item {Object} item Item object that you got from API, or you have created by yourself
+     * @param {Object|String} item - Item object that you got from API, or you have created by yourself
      *
      * @returns {String}
      */
     static getItemHash(item) {
+        if(typeof item === 'string') {
+            return item;
+        }
+
         return item.market_hash_name || item.market_name || item.hashName;
     }
 
@@ -1191,7 +1195,7 @@ class MarketApi {
      */
     searchItemByName(item, gotOptions = null) {
         let self = this.constructor;
-        let mhn = typeof item === 'string' ? item : self.getItemHash(item);
+        let mhn = self.getItemHash(item);
 
         return this.callMethodWithKey(['SearchItemByName', mhn], gotOptions);
     }
