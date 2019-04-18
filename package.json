@@ -1,6 +1,6 @@
 {
   "name": "market-csgo-api",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "A module for interacting with the market.csgo.com API",
   "repository": {
     "type": "git",
