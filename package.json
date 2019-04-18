@@ -4,7 +4,7 @@
   "description": "A module for interacting with the market.csgo.com API",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MattRh/market-csgo-api.git"
+    "url": "https://github.com/malsatin/market-csgo-api.git"
   },
   "keywords": [
     "node",
@@ -24,15 +24,15 @@
     "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/MattRh/market-csgo-api/issues"
+    "url": "https://github.com/malsatin/market-csgo-api/issues"
   },
-  "homepage": "https://github.com/MattRh/market-csgo-api#readme",
+  "homepage": "https://github.com/malsatin/market-csgo-api#readme",
   "author": "Malsa",
   "license": "GNU GPLv3",
   "dependencies": {
-    "bottleneck": "^2.13.0",
-    "got": "^9.3.1",
+    "bottleneck": "^2.18.0",
+    "got": "^9.6.0",
     "merge": "^1.2.1",
-    "papaparse": "^4.6.1"
+    "papaparse": "^4.6.3"
   }
 }
