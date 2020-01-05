@@ -2,6 +2,7 @@
 
 const got = require('got');
 const util = require('util');
+const https = require('https');
 const merge = require('merge');
 const Bottleneck = require('bottleneck');
 const Papa = require('papaparse');
@@ -172,6 +173,14 @@ class MarketApi {
         gotOptions = gotOptions ? merge.clone(gotOptions) : {};
         gotOptions.responseType = 'json';
 
+        // Fix for https://github.com/sindresorhus/got/issues/1009
+        gotOptions.request = gotOptions.request || https.request;
+        gotOptions.hooks = {
+            beforeRequest: [
+                opt => opt.request.getHeader = (name) => opt.headers[name] || null
+            ]
+        };
+
         return got(url, gotOptions).then(response => {
             let body = response.body;
 
@@ -187,8 +196,7 @@ class MarketApi {
                 error.gotOptions = gotOptions;
 
                 throw error;
-            }
-            else {
+            } else {
                 return body;
             }
         });
@@ -245,8 +253,7 @@ class MarketApi {
 
         if(!asNumbers) {
             return ids;
-        }
-        else {
+        } else {
             return {
                 classId: Number(ids.classId),
                 instanceId: Number(ids.instanceId),
@@ -293,8 +300,7 @@ class MarketApi {
     limitRequest(callback) {
         if(this.options.useLimiter) {
             return this.limiter.schedule(callback);
-        }
-        else {
+        } else {
             return callback();
         }
     }
@@ -365,7 +371,7 @@ class MarketApi {
         return this.limitRequest(() => {
             return this.requestJsonHook(url, optionsClone).catch((error) => {
                 if(!this.options.extendedError) {
-                    delete(error.response, error.gotOptions);
+                    delete (error.response, error.gotOptions);
                 }
 
                 throw error;
@@ -922,8 +928,7 @@ class MarketApi {
         let typeUpper = type.toUpperCase();
         if(!types.hasOwnProperty(typeUpper)) {
             type = types.OUT;
-        }
-        else {
+        } else {
             type = types[typeUpper];
         }
 
