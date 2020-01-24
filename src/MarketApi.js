@@ -173,14 +173,6 @@ class MarketApi {
         gotOptions = gotOptions ? merge.clone(gotOptions) : {};
         gotOptions.responseType = 'json';
 
-        // Fix for https://github.com/sindresorhus/got/issues/1009
-        gotOptions.request = gotOptions.request || https.request;
-        gotOptions.hooks = {
-            beforeRequest: [
-                opt => opt.request.getHeader = (name) => opt.headers[name] || null
-            ]
-        };
-
         return got(url, gotOptions).then(response => {
             let body = response.body;
 
