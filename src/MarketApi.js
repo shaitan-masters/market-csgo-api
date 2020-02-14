@@ -2,7 +2,6 @@
 
 const got = require('got');
 const util = require('util');
-const https = require('https');
 const merge = require('merge');
 const Bottleneck = require('bottleneck');
 const Papa = require('papaparse');
@@ -669,7 +668,9 @@ class MarketApi {
      * @returns {Promise}
      */
     accountGetProfileItems(hash, gotOptions = null) {
-        return this.callMethodWithKey('GetProfileItems', gotOptions);
+        let url = ['GetProfileItems', String(hash)];
+
+        return this.callMethodWithKey(url, gotOptions);
     }
 
     /**
