@@ -264,7 +264,7 @@ class MarketApi {
             return item;
         }
 
-        return item.market_hash_name || item.market_name || item.hashName;
+        return item.market_hash_name || item.market_name_en || item.market_name || item.hashName;
     }
 
     /**
