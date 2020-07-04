@@ -1699,20 +1699,53 @@ class MarketApi {
      * -------------------------------------
      */
 
-    searchV2ItemByHash(gotOptions = null) {
+    /**
+     * Option to request a single item
+     *
+     * @param {String} item
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    searchV2ItemByHash(item, gotOptions = null) {
+        let params = {market_hash_name: item};
 
+        return this.callV2MethodWithKey('search-item-by-hash-name', gotOptions, params);
     }
 
-    searchV2ItemByHashSpecific(gotOptions = null) {
+    /**
+     * Option to request a single item
+     *
+     * @param {String} item
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    searchV2ItemByHashSpecific(item, gotOptions = null) {
+        let params = {market_hash_name: item};
 
+        return this.callV2MethodWithKey('search-item-by-hash-name-specific', gotOptions, params);
     }
 
-    searchV2ItemByHashAll(gotOptions = null) {
+    /**
+     * Option to request a multiple items
+     *
+     * @param {Array<String>} items
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    searchV2ItemByHashAll(items, gotOptions = null) {
+        let params = {list_hash_name: items};
 
+        return this.callV2MethodWithKey('search-list-items-by-hash-name-all', gotOptions, params);
     }
 
+    /**
+     * Get item sales history by class and instance
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     searchV2ItemSellHistoryAll(gotOptions = null) {
-
+        return this.callV2MethodWithKey('get-list-items-info', gotOptions);
     }
 
     /**
