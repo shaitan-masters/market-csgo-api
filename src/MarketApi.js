@@ -1499,20 +1499,92 @@ class MarketApi {
      * -------------------------------------
      */
 
-    buyV2Create(gotOptions = null) {
+    /**
+     * Item purchase. In our system, it is possible to purchase only one item per request.
+     *
+     * @param {String|Number} item - either item market_hash_name or item object with class and instance IDs
+     * @param {Number} price
+     * @param {String} [customId]
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    buyV2Create(item, price, customId = null, gotOptions = null) {
+        let params = {
+            price: price
+        };
 
+        if(typeof item === 'object') {
+            params.id = self.formatItem(item);
+        } else {
+            params.market_hash_name = item;
+        }
+
+        if(customId) {
+            params.custom_id = customId;
+        }
+
+        return this.callV2MethodWithKey('buy', gotOptions, params);
     }
 
-    buyV2CreateFor(gotOptions = null) {
+    /**
+     * Item purchase and it`s transfer to another user. Only for CS:GO
+     *
+     * @param {String|Number} item - either item market_hash_name or item object with class and instance IDs
+     * @param {Number} price
+     * @param {Object} tradeData - trade data of account that you want to send to
+     * @param {String} [customId]
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    buyV2CreateFor(item, price, tradeData, customId = null, gotOptions = null) {
+        let params = {
+            price: price
+        };
 
+        if(typeof item === 'object') {
+            params.id = self.formatItem(item);
+        } else {
+            params.market_hash_name = item;
+        }
+
+        if(tradeData && tradeData.partnerId && tradeData.tradeToken) {
+            params = {
+                partner: tradeData.partnerId,
+                token: tradeData.tradeToken,
+            };
+        }
+
+        if(customId) {
+            params.custom_id = customId;
+        }
+
+        return this.callV2MethodWithKey('buy-for', gotOptions, params);
     }
 
-    buyV2Info(gotOptions = null) {
+    /**
+     * Returns purchase status information
+     *
+     * @param {String} customId
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    buyV2Info(customId, gotOptions = null) {
+        let params = {custom_id: customId};
 
+        return this.callV2MethodWithKey('get-buy-info-by-custom-id', gotOptions, params);
     }
 
-    buyV2InfoAll(gotOptions = null) {
+    /**
+     * Returns purchase status information
+     *
+     * @param {Array<String>} customIds
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    buyV2InfoAll(customIds, gotOptions = null) {
+        let params = {custom_id: customIds};
 
+        return this.callV2MethodWithKey('get-list-buy-info-by-custom-id', gotOptions, params);
     }
 
     /**
@@ -1522,15 +1594,15 @@ class MarketApi {
      */
 
     sellV2AddItem(gotOptions = null) {
-
+        // todo
     }
 
     sellV2SetPrice(gotOptions = null) {
-
+        // todo
     }
 
     sellV2RemoveAll(gotOptions = null) {
-
+        // todo
     }
 
     /**
