@@ -1647,20 +1647,50 @@ class MarketApi {
      * -------------------------------------
      */
 
-    tradeV2Take(gotOptions = null) {
+    /**
+     * Create a request for the transfer of purchased items that are at our bots.
+     *
+     * @param {Number} [botId]
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    tradeV2Take(botId = null, gotOptions = null) {
+        let params = {};
+        if(botId) {
+            params = {bot: botId};
+        }
 
+        return this.callV2MethodWithKey('remove-all-from-sale', gotOptions, params);
     }
 
+    /**
+     * Create a request to transfer purchased items to our bot
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     tradeV2Give(gotOptions = null) {
-
+        return this.callV2MethodWithKey('trade-request-give', gotOptions);
     }
 
+    /**
+     * Request data to transfer the item to the buyer (only for CS:GO)
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     tradeV2GiveP2P(gotOptions = null) {
-
+        return this.callV2MethodWithKey('trade-request-give-p2p', gotOptions);
     }
 
+    /**
+     * Returns data for all trades creation (only for CS:GO)
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     tradeV2GiveP2Pall(gotOptions = null) {
-
+        return this.callV2MethodWithKey('trade-request-give-p2p-all', gotOptions);
     }
 
     /**
