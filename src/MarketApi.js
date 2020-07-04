@@ -16,7 +16,7 @@ const MarketApiError = require("./MarketApiError");
 class MarketApi {
     static get defaultAppId() {
         return 730;
-    }
+    };
 
     static get defaultBaseUrl() {
         return 'https://market.csgo.com/';
@@ -31,7 +31,7 @@ class MarketApi {
             EN: 'en',
             RU: 'ru'
         };
-    }
+    };
 
     /**
      * Available currencies
@@ -44,7 +44,7 @@ class MarketApi {
             EUR: 'EUR',
             USD: 'USD',
         };
-    }
+    };
 
     /**
      * Available versions of the API
@@ -57,7 +57,7 @@ class MarketApi {
             V1: '1',
             V2: '2'
         };
-    }
+    };
 
     /**
      * Available types of 'SELL' and 'BUY' param in 'MassInfo' request
@@ -1336,12 +1336,32 @@ class MarketApi {
      * -------------------------------------
      */
 
-    v2PriceDb(currency) {
+    /**
+     * Price list in json format
+     *
+     * @param {String} currency
+     * @param {Object} [gotOptions]
+     * @return {CancelableRequest<Response<string>>}
+     */
+    v2PriceDb(currency, gotOptions = null) {
+        let url = `${this.apiUrl}/${MarketApi.VERSIONS.V2}/prices/${currency}.json`;
 
+        return this.requestHook(url, gotOptions);
     }
 
-    v2PriceItemDb(currency, item) {
+    /**
+     * The price list is in json format, where buy_order is the minimum buy order for this item.
+     *
+     * @param {String} currency
+     * @param {Object} item
+     * @param {Object} [gotOptions]
+     * @return {CancelableRequest<Response<string>>}
+     */
+    v2PriceItemDb(currency, item, gotOptions = null) {
+        let id = self.formatItem(item);
+        let url = `${this.apiUrl}/${MarketApi.VERSIONS.V2}/prices/${id}/${currency}.json`;
 
+        return this.requestHook(url, gotOptions);
     }
 
     /**
@@ -1350,44 +1370,127 @@ class MarketApi {
      * -------------------------------------
      */
 
+    /**
+     * Get the amount on the balance and current currency.
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     accountV2GetMoney(gotOptions = null) {
-
+        return this.callV2MethodWithKey('get-money', gotOptions);
     }
 
+    /**
+     * Immediately suspend the bidding, we also recommend disconnecting from the websockets.
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     accountV2GoOffline(gotOptions = null) {
-
+        return this.callV2MethodWithKey('go-offline', gotOptions);
     }
 
+    /**
+     * Enable sales, you need to send every 3 minutes.
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     accountV2Ping(gotOptions = null) {
-
+        return this.callV2MethodWithKey('ping', gotOptions);
     }
 
+    /**
+     * Request inventory cash update (it is recommended to do after each accepted trade offer).
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     accountV2UpdateInventory(gotOptions = null) {
-
+        return this.callV2MethodWithKey('update-inventory', gotOptions);
     }
 
+    /**
+     * List of items
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     accountV2GetItems(gotOptions = null) {
-
+        return this.callV2MethodWithKey('items', gotOptions);
     }
 
-    accountV2GetHistory(gotOptions = null) {
+    /**
+     * History of purchases and sales at all sites
+     *
+     * @param {Date} from
+     * @param {Date} [to]
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    accountV2GetHistory(from, to = null, gotOptions = null) {
+        let params;
+        if(to) {
+            let fromUnixtime = Math.floor(from.getTime() / 1000);
+            let toUnixtime = Math.floor(to.getTime() / 1000);
 
+            params = {date: fromUnixtime, date_end: toUnixtime};
+        } else {
+            let fromString = from.toISOString().split('T')[0];
+
+            params = {date: fromString};
+        }
+
+        return this.callV2MethodWithKey('history', gotOptions, params);
     }
 
-    accountV2GetTrades(gotOptions = null) {
+    /**
+     * Get a list of trade offers that are currently sent to your account by the Market and are awaiting confirmation on Steam.
+     *
+     * @param {Boolean} [extended]
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    accountV2GetTrades(extended = null, gotOptions = null) {
+        let params;
+        if(extended) {
+            params = {extended: 1};
+        }
 
+        return this.callV2MethodWithKey('trades', gotOptions, params);
     }
 
-    accountV2TransferDiscounts(gotOptions = null) {
+    /**
+     * Transfer discounts to another account
+     *
+     * @param {String} apiKey - secret api key of the account, where you want to transfer
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    accountV2TransferDiscounts(apiKey, gotOptions = null) {
+        let params = {to: apiKey};
 
+        return this.callV2MethodWithKey('transfer-discounts', gotOptions, params);
     }
 
+    /**
+     * Returns your SteamID
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     accountV2GetSteamID(gotOptions = null) {
-
+        return this.callV2MethodWithKey('get-my-steam-id', gotOptions);
     }
 
+    /**
+     * Getting Steam inventory, only those items that you have not yet put up for sale.
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     accountV2SteamInventory(gotOptions = null) {
-
+        return this.callV2MethodWithKey('my-inventory', gotOptions);
     }
 
     /**
@@ -1480,8 +1583,14 @@ class MarketApi {
      * -------------------------------------
      */
 
+    /**
+     * Check all possible obstacles to the successful items selling.
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     additionalV2Test(gotOptions = null) {
-
+        return this.callV2MethodWithKey('test', gotOptions);
     }
 }
 
