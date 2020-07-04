@@ -1593,16 +1593,52 @@ class MarketApi {
      * -------------------------------------
      */
 
-    sellV2AddItem(gotOptions = null) {
-        // todo
+    /**
+     * Set item for sale. To get a list of items for selling, use the method my-inventory.
+     *
+     * @param {String|Number} itemId
+     * @param {Number} price
+     * @param {String} currency
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    sellV2AddItem(itemId, price, currency, gotOptions = null) {
+        let params = {
+            item_id: itemId,
+            price: price,
+            currency: currency,
+        };
+
+        return this.callV2MethodWithKey('add-to-sale', gotOptions, params);
     }
 
-    sellV2SetPrice(gotOptions = null) {
-        // todo
+    /**
+     * Set a new price on the item, or remove from sale.
+     *
+     * @param {String|Number} itemId
+     * @param {Number} price
+     * @param {String} currency
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    sellV2SetPrice(itemId, price, currency, gotOptions = null) {
+        let params = {
+            item_id: itemId,
+            price: price,
+            currency: currency,
+        };
+
+        return this.callV2MethodWithKey('set-price', gotOptions, params);
     }
 
+    /**
+     * Removing all items at once from the sale.
+     *
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
     sellV2RemoveAll(gotOptions = null) {
-        // todo
+        return this.callV2MethodWithKey('remove-all-from-sale', gotOptions);
     }
 
     /**
