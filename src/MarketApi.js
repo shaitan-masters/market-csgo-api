@@ -34,6 +34,32 @@ class MarketApi {
     }
 
     /**
+     * Available currencies
+     * @return {{EUR: string, USD: string, RUB: string}}
+     * @constructor
+     */
+    static get CURRENCY() {
+        return {
+            RUB: 'RUB',
+            EUR: 'EUR',
+            USD: 'USD',
+        };
+    }
+
+    /**
+     * Available versions of the API
+     *
+     * @return {{V1: string, V2: string}}
+     * @constructor
+     */
+    static get VERSIONS() {
+        return {
+            V1: '1',
+            V2: '2'
+        };
+    }
+
+    /**
      * Available types of 'SELL' and 'BUY' param in 'MassInfo' request
      *
      * @returns {{NOTHING: number, TOP_50_SUGGESTIONS: number, TOP_SUGGESTION: number}}
@@ -235,8 +261,8 @@ class MarketApi {
      */
     static getItemIds(item, asNumbers = false) {
         let ids = {
-            classId: String(item.i_classid || item.classid || item.classId),
-            instanceId: String(item.i_instanceid || item.instanceid || item.instanceId || 0),
+            classId: String(item.i_classid || item.classid || item.classId || item.class),
+            instanceId: String(item.i_instanceid || item.instanceid || item.instanceId || item.instance || 0),
         };
         if(ids.instanceId === '0' && item.ui_real_instance) {
             ids.instanceId = String(item.ui_real_instance);
@@ -306,18 +332,34 @@ class MarketApi {
      * @returns {Promise}
      */
     callMethodWithKey(method, gotOptions = null, params = null) {
-        let url = this.formatMethodWithKey(method, params);
+        let url = this.formatMethodWithKey(MarketApi.VERSIONS.V1, method, params);
 
         return this.callApiUrl(url, gotOptions);
     }
 
     /**
+     * Simple API-v2 call with key
+     *
+     * @param {String|Array} method - method to be called
+     * @param {Object} [gotOptions] Options for 'got' module
+     * @param {Object} [params] - optional params that may want to pass in url
+     *
+     * @returns {Promise}
+     */
+    callV2MethodWithKey(method, gotOptions = null, params = null) {
+        let url = this.formatMethodWithKey(MarketApi.VERSIONS.V2, method, params);
+
+        return this.callApiUrl(url, gotOptions);
+    }
+
+    /**
+     * @param {String} version
      * @param {String|Array} method
      * @param {Object} [params] - optional params that may want to pass in url
      *
      * @return {String}
      */
-    formatMethodWithKey(method, params = null) {
+    formatMethodWithKey(version, method, params = null) {
         let self = this.constructor;
 
         let completeOptions = merge.recursive({
@@ -326,6 +368,10 @@ class MarketApi {
 
         let methodPath = encodeURI(self.formatApiCall(method));
         let queryParams = queryStringify(completeOptions);
+
+        if(version === MarketApi.VERSIONS.V2) {
+            return `${this.apiUrl}/${MarketApi.VERSIONS.V2}/${methodPath}/?${queryParams}`;
+        }
 
         return `${this.apiUrl}/${methodPath}/?${queryParams}`;
     }
@@ -1276,6 +1322,166 @@ class MarketApi {
      */
     additionalCheckBotStatus(botId, gotOptions = null) {
         return this.callMethodWithKey(['CheckBotStatus', botId], gotOptions);
+    }
+
+    /**
+     * -------------------------------------
+     * V2 methods
+     * -------------------------------------
+     */
+
+    /**
+     * -------------------------------------
+     * Static API call that don't require key
+     * -------------------------------------
+     */
+
+    v2PriceDb(currency) {
+
+    }
+
+    v2PriceItemDb(currency, item) {
+
+    }
+
+    /**
+     * -------------------------------------
+     * Account methods
+     * -------------------------------------
+     */
+
+    accountV2GetMoney(gotOptions = null) {
+
+    }
+
+    accountV2GoOffline(gotOptions = null) {
+
+    }
+
+    accountV2Ping(gotOptions = null) {
+
+    }
+
+    accountV2UpdateInventory(gotOptions = null) {
+
+    }
+
+    accountV2GetItems(gotOptions = null) {
+
+    }
+
+    accountV2GetHistory(gotOptions = null) {
+
+    }
+
+    accountV2GetTrades(gotOptions = null) {
+
+    }
+
+    accountV2TransferDiscounts(gotOptions = null) {
+
+    }
+
+    accountV2GetSteamID(gotOptions = null) {
+
+    }
+
+    accountV2SteamInventory(gotOptions = null) {
+
+    }
+
+    /**
+     * -------------------------------------
+     * Buy methods
+     * -------------------------------------
+     */
+
+    buyV2Create(gotOptions = null) {
+
+    }
+
+    buyV2CreateFor(gotOptions = null) {
+
+    }
+
+    buyV2Info(gotOptions = null) {
+
+    }
+
+    buyV2InfoAll(gotOptions = null) {
+
+    }
+
+    /**
+     * -------------------------------------
+     * Sell methods
+     * -------------------------------------
+     */
+
+    sellV2AddItem(gotOptions = null) {
+
+    }
+
+    sellV2SetPrice(gotOptions = null) {
+
+    }
+
+    sellV2RemoveAll(gotOptions = null) {
+
+    }
+
+    /**
+     * -------------------------------------
+     * Trades methods
+     * -------------------------------------
+     */
+
+    tradeV2Take(gotOptions = null) {
+
+    }
+
+    tradeV2Give(gotOptions = null) {
+
+    }
+
+    tradeV2GiveP2P(gotOptions = null) {
+
+    }
+
+    tradeV2GiveP2Pall(gotOptions = null) {
+
+    }
+
+    /**
+     * -------------------------------------
+     * Searching methods
+     * -------------------------------------
+     */
+
+    searchV2ItemByHash(gotOptions = null) {
+
+    }
+
+    searchV2ItemByHashSpecific(gotOptions = null) {
+
+    }
+
+    searchV2ItemByHashAll(gotOptions = null) {
+
+    }
+
+    searchV2ItemSellHistoryAll(gotOptions = null) {
+
+    }
+
+    /**
+     * -------------------------------------
+     * Additional methods
+     * -------------------------------------
+     */
+
+    additionalV2Test(gotOptions = null) {
+
     }
 }
 
