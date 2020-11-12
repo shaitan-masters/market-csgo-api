@@ -1707,7 +1707,7 @@ class MarketApi {
      * @return {Promise}
      */
     searchV2ItemByHash(item, gotOptions = null) {
-        let params = {market_hash_name: item};
+        let params = {hash_name: item};
 
         return this.callV2MethodWithKey('search-item-by-hash-name', gotOptions, params);
     }
@@ -1720,7 +1720,7 @@ class MarketApi {
      * @return {Promise}
      */
     searchV2ItemByHashSpecific(item, gotOptions = null) {
-        let params = {market_hash_name: item};
+        let params = {hash_name: item};
 
         return this.callV2MethodWithKey('search-item-by-hash-name-specific', gotOptions, params);
     }
@@ -1744,8 +1744,10 @@ class MarketApi {
      * @param {Object} [gotOptions]
      * @return {Promise}
      */
-    searchV2ItemSellHistoryAll(gotOptions = null) {
-        return this.callV2MethodWithKey('get-list-items-info', gotOptions);
+    searchV2ItemSellHistoryAll(items, gotOptions = null) {
+        let params = {list_hash_name: items};
+
+        return this.callV2MethodWithKey('get-list-items-info', gotOptions, params);
     }
 
     /**
