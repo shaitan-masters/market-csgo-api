@@ -54,8 +54,8 @@ class MarketApi {
      */
     static get VERSIONS() {
         return {
-            V1: '1',
-            V2: '2'
+            V1: 'v1',
+            V2: 'v2'
         };
     };
 
