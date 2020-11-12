@@ -393,6 +393,8 @@ class MarketApi {
      * @param gotOptions
      */
     requestHook(url, gotOptions = null) {
+        gotOptions = gotOptions ? merge.clone(gotOptions) : {};
+
         return got(url, gotOptions);
     }
 
