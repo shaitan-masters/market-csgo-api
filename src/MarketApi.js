@@ -1346,6 +1346,8 @@ class MarketApi {
      * @return {Promise}
      */
     v2PriceDb(currency, gotOptions = null) {
+        currency = currency.toUpperCase();
+
         let url = `${this.apiUrl}/${MarketApi.VERSIONS.V2}/prices/${currency}.json`;
 
         return this.requestJsonHook(url, gotOptions);
@@ -1360,6 +1362,8 @@ class MarketApi {
      * @return {Promise}
      */
     v2PriceItemDb(currency, item, gotOptions = null) {
+        currency = currency.toUpperCase();
+
         let id = self.formatItem(item);
         let url = `${this.apiUrl}/${MarketApi.VERSIONS.V2}/prices/${id}/${currency}.json`;
 
