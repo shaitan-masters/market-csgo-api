@@ -1343,12 +1343,12 @@ class MarketApi {
      *
      * @param {String} currency
      * @param {Object} [gotOptions]
-     * @return {CancelableRequest<Response<string>>}
+     * @return {Promise}
      */
     v2PriceDb(currency, gotOptions = null) {
         let url = `${this.apiUrl}/${MarketApi.VERSIONS.V2}/prices/${currency}.json`;
 
-        return this.requestHook(url, gotOptions);
+        return this.requestJsonHook(url, gotOptions);
     }
 
     /**
@@ -1357,13 +1357,13 @@ class MarketApi {
      * @param {String} currency
      * @param {Object} item
      * @param {Object} [gotOptions]
-     * @return {CancelableRequest<Response<string>>}
+     * @return {Promise}
      */
     v2PriceItemDb(currency, item, gotOptions = null) {
         let id = self.formatItem(item);
         let url = `${this.apiUrl}/${MarketApi.VERSIONS.V2}/prices/${id}/${currency}.json`;
 
-        return this.requestHook(url, gotOptions);
+        return this.requestJsonHook(url, gotOptions);
     }
 
     /**
