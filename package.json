@@ -1,0 +1,46 @@
+{
+  "name": "market-csgo-api",
+  "version": "0.5.0",
+  "description": "A module for interacting with the market.csgo.com API. Release be like 1.0.0",
+  "modules": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/malsatin/market-csgo-api.git"
+  },
+  "keywords": [
+    "node",
+    "csgo",
+    "csgotm",
+    "csgo.tm",
+    "market",
+    "weapons",
+    "market.csgo",
+    "api",
+    "sdk"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/malsatin/market-csgo-api/issues"
+  },
+  "homepage": "https://github.com/malsatin/market-csgo-api#readme",
+  "author": "Malsa, mishanya",
+  "license": "GNU GPLv3",
+  "_moduleAliases": {
+    "@validateWithJoi": "helpers/validators/index",
+    "@emitters": "emitters/index"
+  },
+  "dependencies": {
+    "bottleneck": "^2.19.5",
+    "config": "^3.3.6",
+    "fs": "0.0.1-security",
+    "got": "^11.8.2",
+    "joi": "^17.4.0",
+    "module-alias": "^2.2.2",
+    "papaparse": "^5.3.0"
+  }
+}
