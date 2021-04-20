@@ -1,9 +1,4 @@
 {
-  "presets": [
-    "es2015"
-  ],
-  "plugins": [
-    "add-module-exports",
-    "transform-object-entries"
-  ]
+  "presets": ["@babel/env"],
+  "plugins": ["add-module-exports"]
 }

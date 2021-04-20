@@ -1,34 +1,38 @@
-const JOI = require('joi');
-const CURRENCIES_ENUM = require('./../../../../enums/currencies');
+const JOI = require("joi");
+const CURRENCIES_ENUM = require("./../../../../enums/currencies");
 
-module.exports = JOI.object(Object.freeze({
+module.exports = JOI.object(
+  Object.freeze({
     getPrice: {
-        currency: JOI.string().valid(...CURRENCIES_ENUM).required()
+      currency: JOI.string()
+        .valid(...CURRENCIES_ENUM)
+        .required(),
     },
-    getMoney: {},
-    goOffline: {},
-    ping: {},
-    updateInventory: {},
-    items: {},
-    history: {},
-    trades: {},
-    transferDiscounts: {},
-    getMySteamId: {},
-    myInventory: {},
-    buy: {},
-    buyFor: {},
-    getBuyInfoByCustomId: {},
-    getListBuyInfoByCustomId: {},
-    addToSale: {},
-    setPrice: {},
-    removeAllFromSale: {},
-    tradeRequestGive: {},
-    tradeRequestGiveP2p: {},
-    tradeRequestGiveP2pAll: {},
-    searchItemByHashName: {},
-    searchItemByHashNameSpecific: {},
-    searchListItemsByHashNameAll: {},
-    getListItemsInfo: {},
-    test: {},
-    getPricesWithClassInstance: {}
-}))
+    getMoney: null,
+    goOffline: null,
+    ping: null,
+    updateInventory: null,
+    items: null,
+    history: null,
+    trades: null,
+    transferDiscounts: null,
+    getMySteamId: null,
+    myInventory: null,
+    buy: null,
+    buyFor: null,
+    getBuyInfoByCustomId: null,
+    getListBuyInfoByCustomId: null,
+    addToSale: null,
+    setPrice: null,
+    removeAllFromSale: null,
+    tradeRequestGive: null,
+    tradeRequestGiveP2p: null,
+    tradeRequestGiveP2pAll: null,
+    searchItemByHashName: null,
+    searchItemByHashNameSpecific: null,
+    searchListItemsByHashNameAll: null,
+    getListItemsInfo: null,
+    test: null,
+    getPricesWithClassInstance: null,
+  })
+);

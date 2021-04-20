@@ -1,2 +1,1 @@
-module.exports = require("./src/MarketApi");
-
+module.exports = require("./src/MarketAPI");
