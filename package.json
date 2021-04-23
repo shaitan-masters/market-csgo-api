@@ -19,7 +19,7 @@
     "sdk"
   ],
   "scripts": {
-    "test": "NODE_ENV=test jest test/index.test.js"
+    "test": "NODE_ENV=test jest test/index.js --coverage"
   },
   "publishConfig": {
     "access": "public"
@@ -34,6 +34,9 @@
     "@validateWithJoi": "helpers/validators/index",
     "@emitters": "emitters/index",
     "@defaultValidationSchema": "enums/validation_schemas/default_validation_schema"
+  },
+  "jest": {
+    "coverageDirectory": "test/coverage"
   },
   "dependencies": {
     "bottleneck": "^2.19.5",

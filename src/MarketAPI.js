@@ -1,4 +1,3 @@
-require("module-alias/register");
 const BOTTLENECK = require("bottleneck");
 const CONFIG = require("config");
 const {
@@ -56,7 +55,6 @@ module.exports = class MarketAPI {
       limiter: new BOTTLENECK(LIMITER_OPTIONS),
     });
 
-    //Iterate over options and use sweet JS private method
     MARKET_API_VERSIONS.map(this.#setVersions);
   }
 
@@ -71,18 +69,18 @@ module.exports = class MarketAPI {
     this[version] = {};
     Object.keys(CONSTRUCT_API_METHODS(version)).map(
       (methodNameAsKey, i, APImethods) => {
-        this[version][methodNameAsKey] = this.#buildClassMethod.call(
-          this,
-          version,
-          APImethods[methodNameAsKey]
-        );
-      }
-    );
+        this[version][methodNameAsKey] =  this.#build
     Object.freeze(this[version]);
   }
 
   //Dynamically building class methods
   #buildClassMethod(version, method) {
+    /**
+     *
+     * @param {Object} clientRequestParams
+     * @returns {Promise<any>}
+     * @constructor
+     */
     return async function (clientRequestParams) {
       const SCHEDULE_REQUEST = STATE.limiter.schedule;
 

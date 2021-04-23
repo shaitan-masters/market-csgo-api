@@ -40,7 +40,7 @@ jspm_packages
 .idea
 
 # Test files
-test*
+test/coverage/
 
 # Lib
 /lib/
