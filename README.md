@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # market.csgo.com API
 
 This is a node module for interacting with the market.csgo.com API.
@@ -93,3 +94,6 @@ const instance = new MarketAPI({apiKey: 'xxxx'});
     let trades = await instance.accountGetTrades();
 })()
 ```
+=======
+To be continued
+>>>>>>> 9f8214cc44d527d8a6266d7d81fd814e73d13bea

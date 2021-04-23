@@ -1,0 +1,5 @@
+{
+  "client_errors": {
+     "no_api_key_for_private_method": "No API key fro private method provided. Call public methods or init like \n myAPI = require new MarketApi({apiKey: 'a1b2C3d4E5f6'})"
+  }
+}

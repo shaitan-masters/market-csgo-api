@@ -1,0 +1,7 @@
+{
+  "APIConfig": {
+    "protocol": "http",
+    "host": "localhost:9001",
+    "subdomain": null
+  }
+}

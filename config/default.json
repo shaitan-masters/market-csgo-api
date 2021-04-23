@@ -1,0 +1,7 @@
+{
+  "APIConfig": {
+    "protocol": "https",
+    "host": "csgo.com",
+    "subdomain": "market"
+  }
+}
