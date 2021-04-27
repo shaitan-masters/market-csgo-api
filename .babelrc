@@ -1,9 +1,23 @@
 {
   "presets": [
-    "@babel/env"
+    [
+      '@babel/preset-env',
+      {
+        targets: {
+          node: true
+        }
+      }
+    ]
   ],
   "plugins": [
-    "add-module-exports"
+    '@babel/plugin-proposal-class-properties',
+    "add-module-exports",
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "regenerator": true
+      }
+    ]
   ]
 }
 

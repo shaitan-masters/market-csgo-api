@@ -1,8 +1,7 @@
 const JOI = require("joi");
 const CURRENCIES_ENUM = require("./../../../../enums/currencies");
 
-module.exports = JOI.object(
-  Object.freeze({
+module.exports =  {
     getMoney: null,
     goOffline: null,
     ping: null,
@@ -29,5 +28,4 @@ module.exports = JOI.object(
     getListItemsInfo: null,
     test: null,
     getPricesWithClassInstance: null,
-  })
-);
+}

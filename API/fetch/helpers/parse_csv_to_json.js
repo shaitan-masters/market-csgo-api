@@ -14,7 +14,5 @@ module.exports = (responseCSV, methodParams) => {
         PARSED.data : methodParams.returnCSV ?
             responseCSV :
             API_ERRORS_EMITTER.emit('error', errors[0])
-    }
 
-    return parsed.data;
 }

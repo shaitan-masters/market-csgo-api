@@ -1,2 +1,2 @@
 const JOI = require("joi");
-module.exports = JOI.any();
+module.exports = () => JOI.any();

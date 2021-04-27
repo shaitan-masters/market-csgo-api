@@ -1,10 +1,8 @@
 {
   "name": "market-csgo-api",
-
   "version": "0.5.0",
   "description": "A module for interacting with the market.csgo.com API. Release be like 1.0.0",
   "modules": true,
-
   "repository": {
     "type": "git",
     "url": "https://github.com/malsatin/market-csgo-api.git"
@@ -21,9 +19,8 @@
     "sdk"
   ],
   "scripts": {
-
-    "test": "NODE_ENV=test jest test/index.js --coverage"
-   },
+    "test": "NODE_ENV=test jest test/index.test.js --coverage --runInBand --detectOpenHandles --testTimeout=1000"
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -31,7 +28,6 @@
     "url": "https://github.com/malsatin/market-csgo-api/issues"
   },
   "homepage": "https://github.com/malsatin/market-csgo-api#readme",
-
   "author": "Malsa, mishanya",
   "license": "GNU GPLv3",
   "_moduleAliases": {
@@ -40,20 +36,36 @@
     "@defaultValidationSchema": "enums/validation_schemas/default_validation_schema"
   },
   "jest": {
-    "coverageDirectory": "test/coverage"
+    "coverageDirectory": "test/coverage",
+    "setupFiles": [
+      "./test/setup.js"
+    ],
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "@defaultValidationSchema": "<rootDir>/enums/validation_schemas/default_validation_schema",
+
+      "@validateWithJoi": "<rootDir>/helpers/validators/index",
+      "@emitters": "<rootDir>/emitters/index"
+    },
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
     "bottleneck": "^2.19.5",
     "config": "^3.3.6",
     "fs": "0.0.1-security",
     "got": "^11.8.2",
     "joi": "^17.4.0",
+    "merge": "^2.1.1",
     "module-alias": "^2.2.2",
     "papaparse": "^5.3.0"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.13.15",
     "@babel/preset-env": "^7.13.15",
     "babel-plugin-add-module-exports": "^1.0.4",
     "jest": "^26.6.3"
-   }
+  }
 }

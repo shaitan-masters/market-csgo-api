@@ -1,8 +1,9 @@
 const JOI = require("joi");
-const EMITTERS = require("@emitters");
-const DEFAULT_VALIDATION_SCHEMA = require("@defaultValidationSchema");
+const Emitters = require("./../../emitters");
 
-module.exports = (object, schema = DEFAULT_VALIDATION_SCHEMA, emitterName) => {
-  let ERROR = JOI.validate(object, schema, { abortEarly: false });
-  return ERROR && EMITTERS[emitterName](ERROR);
+
+module.exports = (object, schema = JOI.any(), emitterName = 'CRASH_EMITTER') => {
+
+  const  ERROR = schema.validate(object, { abortEarly: false }).error;
+  return ERROR && Emitters[emitterName].emit('error', ERROR);
 };
