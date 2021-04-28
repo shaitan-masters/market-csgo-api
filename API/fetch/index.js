@@ -18,6 +18,6 @@ module.exports = function (method, methodParams, state) {
   try {
     return FETCH_STUFF(URL, GOT_OPTIONS).then(({ body }) => body);
   } catch (fetchError) {
-    CRASH_EMITTER.emit("error", fetchError);
+    CRASH_EMITTER.emit("API_error", fetchError);
   }
 };

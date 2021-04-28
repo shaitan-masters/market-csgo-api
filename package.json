@@ -19,7 +19,7 @@
     "sdk"
   ],
   "scripts": {
-    "test": "NODE_ENV=test jest test/index.test.js --coverage --runInBand --detectOpenHandles --testTimeout=1000"
+    "test": "NODE_ENV=test jest test/index.test.js  --runInBand --detectOpenHandles --testTimeout=10000"
   },
   "publishConfig": {
     "access": "public"
@@ -33,6 +33,7 @@
   "_moduleAliases": {
     "@validateWithJoi": "helpers/validators/index",
     "@emitters": "emitters/index",
+    "@ErrorEmitter": "emitters/error",
     "@defaultValidationSchema": "enums/validation_schemas/default_validation_schema"
   },
   "jest": {
@@ -43,6 +44,7 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "@defaultValidationSchema": "<rootDir>/enums/validation_schemas/default_validation_schema",
+      "@ErrorEmitter": "<rootDir>/emitters/error",
 
       "@validateWithJoi": "<rootDir>/helpers/validators/index",
       "@emitters": "<rootDir>/emitters/index"

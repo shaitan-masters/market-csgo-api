@@ -1,0 +1,20 @@
+module.exports = [
+    "setToken",
+    "operationHistory",
+    "getProfileItems",
+    "itemInfo",
+    "setPrice",
+    "itemRequest",
+    "massSetPrice",
+    "getOrders",
+    "insertOrder",
+    "updateOrder",
+    "processOrder",
+    "updateNotification",
+    "getMassInfo",
+    "getFloatHash",
+    "getWSAuth",
+    "getDBFileName",
+    "getDBData",
+    "getHistory"
+];

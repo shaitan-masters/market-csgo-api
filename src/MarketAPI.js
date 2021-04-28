@@ -1,134 +1,269 @@
-const BOTTLENECK = require("bottleneck");
-const CONFIG = require("config");
+const Bottleneck = require('bottleneck');
 const {
-    VALIDATE_INIT_OPTIONS,
-    VALIDATE_PARAMS,
-    LOG_API_RESPONSE,
-} = require("./../helpers");
-const {CLIENT_ERROR_EMITTER, API_ERROR_EMITTER} = require("@emitters");
-const API_CONFIG = CONFIG.get("APIConfig");
-const {LIMITER_OPTIONS, MARKET_API_VERSIONS} = require("./../enums");
-const CONSTRUCT_API_METHODS = require("./../API/v/helpers/construct_API_methods");
-const FETCH_API = require("./../API/fetch");
-const BUILD_REQUEST_PARAMS = require("./../helpers/build_request_params");
+    validateInitOptions, validateRequestParams
+} = require('./../helpers');
+
+const {
+    limiterOptions: LIMITER_OPTIONS, defaultAPIParams: DEFAULT_API_PARAMS
+} = require('./../enums');
+const ErrorEmitter = require('@ErrorEmitter');
+const GET_METHOD_DATA = require('./../API/v/helpers/get_method_data');
+const FETCH_API = require('./../API/fetch');
+const BUILD_REQUEST_PARAMS = require('./../helpers/build_request_params');
 const STATE = {};
 
 module.exports = class MarketAPI {
-    // In case one would like to use public methods only, can create new MarketAPI() without args
+    /**
+     *
+     * @param {Object} initOptions - take options and create state
+     */
     constructor(initOptions = {}) {
-        //Validate init options with Joi. Must be an object with optional api key.
-        VALIDATE_INIT_OPTIONS(initOptions);
+        /**
+         * Validate init options with Joi.
+         * No args or false value will be assigned to an object
+         */
+        validateInitOptions(initOptions);
 
-        this.initOptions = initOptions;
-        // Create independent state from passed argument
-        setState({
-            //Spread options set by client
-            ...initOptions,
+        /**
+         *
+         * @type {Object} get API params from init options
+         */
+        const {APIParams: API_PARAMS = {}} = initOptions;
 
-            //Check if client would like to get Market API errors as JSON w/o throwing
-            //This can be set on any further request to change it's particular response. Default is false
-            APIErrorsToJSON: initOptions.APIErrorsToJSON || false,
+        /**
+         * Create independent state from passed options argument
+         */
+        this.state = {
+            /**
+             * Init options are passed as is
+             */
+            ...initOptions, /**
+             *  Check if client would like to get Market API errors as JSON w/o throwing
+             *  Default is false
+             */
+            APIErrorsToJSON: !!initOptions.APIErrorsToJSON,
 
-            // Decide if one wants to get console warnings about non-crashing error, future deprecations etc
-            getWarnings: initOptions.getWarnings || false,
+            /**
+             * Check if client would like to get warnings
+             */
+            getWarnings: !!initOptions.getWarnings,
 
-            // Decide if one wants to wait for all methods execution
-            //Params to be used as query parameters or to concat URL
+            /**
+             * Limiter options be always used cause the limit 5 requests/sec seems to stay for a long time (14.04.2021)
+             */
+            limiter: new Bottleneck(LIMITER_OPTIONS), /**
+             * Marketplace API key
+             */
+            APIKey: initOptions.APIKey, /**
+             * Params to be used during API calls
+             */
             APIParams: {
-                //Save currency  and use it if the client won't pass this param in functions calls
-                //Default is RUB
-                currency: initOptions.currency || "RUB",
+                /**
+                 * Save currency  and use it if the client won't pass this param in functions calls. Default is USD
+                 */
+                currency: API_PARAMS.currency || DEFAULT_API_PARAMS.currency, /**
+                 /**
+                 * Save language  and use it if the client won't pass this param in functions calls. Default is en
+                 */
+                language: API_PARAMS.language || DEFAULT_API_PARAMS.language,
 
-                //Save language and use it if the client won't pass this param in method calls
-                //Default is English
-                language: initOptions.language || "en",
+                /**
+                 * App id being used in the filename of DB json. Can be passed in the method getDBName by the client
+                 */
+                marketAppId: API_PARAMS.marketAppId || DEFAULT_API_PARAMS.APIKey,
 
-                // App id being used in the filename of DB json. Can be passed in the method getDBName by the client
-                marketAppId: initOptions.marketAppId || 730,
-
-                APIKey: initOptions.APIKey,
-
-                // Get API config from enums with base URL etc
-                ...API_CONFIG,
             },
-            //Limiter options be always used cause the limit 5 requests/sec seems to stay for a long time (14.04.2021)
-            limiter: new BOTTLENECK(LIMITER_OPTIONS),
-        });
 
-        MARKET_API_VERSIONS.map(version => this.setVersions.call(this, version));
+        };
+        /**
+         *
+         * @type {Function} - bind class builder to this
+         */
+        this.buildMethod = this.buildMethod.bind(this);
     }
 
-    async test(customParam) {
+    /**
+     * Allows to call APIProvder.v1.someMethod()
+     * @returns {{operationHistory: (function(*=): *), itemRequest: (function(*=): *), getDBData: (function(*=): *), getProfileItems: (function(*=): *), insertOrder: (function(*=): *), getWSAuth: (function(*=): *), updateNotification: (function(*=): *), updateOrder: (function(*=): *), itemInfo: (function(*=): *), setPrice: (function(*=): *), getOrders: (function(*=): *), getDBFileName: (function(*=): *), processOrder: (function(*=): *), getMassInfo: (function(*=): *), getHistory: (function(*=): *), setToken: (function(*=): *), massSetPrice: (function(*=): *), getFloatHash: (function(*=): *)}}
+     */
+    get v1() {
         return {
-            ...this.initOptions,
-            customParam,
+            setToken: reqParams => this.buildMethod('v1', 'setToken')(reqParams),
+            operationHistory: reqParams => this.buildMethod('v1', 'operationHistory')(reqParams),
+            getProfileItems: reqParams => this.buildMethod('v1', 'getProfileItems')(reqParams),
+            itemInfo: reqParams => this.buildMethod('v1', 'itemInfo')(reqParams),
+            setPrice: reqParams => this.buildMethod('v1', 'setPrice')(reqParams),
+            itemRequest: reqParams => this.buildMethod('v1', 'itemRequest')(reqParams),
+            massSetPrice: reqParams => this.buildMethod('v1', 'massSetPrice')(reqParams),
+            getOrders: reqParams => this.buildMethod('v1', 'getOrders')(reqParams),
+            insertOrder: reqParams => this.buildMethod('v1', 'insertOrder')(reqParams),
+            updateOrder: reqParams => this.buildMethod('v1', 'updateOrder')(reqParams),
+            processOrder: reqParams => this.buildMethod('v1', 'processOrder')(reqParams),
+            updateNotification: reqParams => this.buildMethod('v1', 'updateNotification')(reqParams),
+            getMassInfo: reqParams => this.buildMethod('v1', 'getMassInfo')(reqParams),
+            getFloatHash: reqParams => this.buildMethod('v1', 'getFloatHash')(reqParams),
+            getWSAuth: reqParams => this.buildMethod('v1', 'getWSAuth')(reqParams),
+            getDBFileName: reqParams => this.buildMethod('v1', 'getDBFileName')(reqParams),
+            getDBData: reqParams => this.buildMethod('v1', 'getDBData')(reqParams),
+            getHistory: reqParams => this.buildMethod('v1', 'getHistory')(reqParams)
         };
     }
 
-    setVersions(version) {
-        this[version] = {};
-        Object.keys(CONSTRUCT_API_METHODS(version)).map(
-            (methodNameAsKey, i, APImethods) => {
-                this.buildClassMethod(version, methodNameAsKey, APImethods[methodNameAsKey])
-            })
-        Object.freeze(this[version]);
-
+    /**
+     * Allows to call APIProvder.v2.someMethod()
+     * @returns {{operationHistory: (function(*=): *), itemRequest: (function(*=): *), getDBData: (function(*=): *), getProfileItems: (function(*=): *), insertOrder: (function(*=): *), getWSAuth: (function(*=): *), updateNotification: (function(*=): *), updateOrder: (function(*=): *), itemInfo: (function(*=): *), setPrice: (function(*=): *), getOrders: (function(*=): *), getDBFileName: (function(*=): *), processOrder: (function(*=): *), getMassInfo: (function(*=): *), getHistory: (function(*=): *), setToken: (function(*=): *), massSetPrice: (function(*=): *), getFloatHash: (function(*=): *)}}
+     */
+    get v2() {
+        return {
+            getMoney: reqParams => this.buildMethod('v2', 'getMoney')(reqParams),
+            goOffline: reqParams => this.buildMethod('v2', 'goOffline')(reqParams),
+            ping: reqParams => this.buildMethod('v2', 'ping')(reqParams),
+            updateInventory: reqParams => this.buildMethod('v2', 'updateInventory')(reqParams),
+            items: reqParams => this.buildMethod('v2', 'items')(reqParams),
+            history: reqParams => this.buildMethod('v2', 'history')(reqParams),
+            trades: reqParams => this.buildMethod('v2', 'trades')(reqParams),
+            transferDiscounts: reqParams => this.buildMethod('v2', 'transferDiscounts')(reqParams),
+            getMySteamId: reqParams => this.buildMethod('v2', 'getMySteamId')(reqParams),
+            myInventory: reqParams => this.buildMethod('v2', 'myInventory')(reqParams),
+            buy: reqParams => this.buildMethod('v2', 'buy')(reqParams),
+            buyFor: reqParams => this.buildMethod('v2', 'buyFor')(reqParams),
+            getBuyInfoByCustomId: reqParams => this.buildMethod('v2', 'getBuyInfoByCustomId')(reqParams),
+            getListBuyInfoByCustomId: reqParams => this.buildMethod('v2', 'getListBuyInfoByCustomId')(reqParams),
+            addToSale: reqParams => this.buildMethod('v2', 'addToSale')(reqParams),
+            setPrice: reqParams => this.buildMethod('v2', 'setPrice')(reqParams),
+            removeAllFromSale: reqParams => this.buildMethod('v2', 'removeAllFromSale')(reqParams),
+            tradeRequestGive: reqParams => this.buildMethod('v2', 'tradeRequestGive')(reqParams),
+            tradeRequestGiveP2p: reqParams => this.buildMethod('v2', 'tradeRequestGiveP2p')(reqParams),
+            tradeRequestGiveP2pAll: reqParams => this.buildMethod('v2', 'tradeRequestGiveP2pAll')(reqParams),
+            searchItemByHashName: reqParams => this.buildMethod('v2', 'searchItemByHashName')(reqParams),
+            searchItemByHashNameSpecific: reqParams => this.buildMethod('v2', 'searchItemByHashNameSpecific')(reqParams),
+            searchListItemsByHashNameAll: reqParams => this.buildMethod('v2', 'searchListItemsByHashNameAll')(reqParams),
+            getListItemsInfo: reqParams => this.buildMethod('v2', 'getListItemsInfo')(reqParams),
+            getWSAuth: reqParams => this.buildMethod('v2', 'getWSAuth')(reqParams),
+            test: reqParams => this.buildMethod('v2', 'test')(reqParams),
+            getPrices: reqParams => this.buildMethod('v2', 'getPrices')(reqParams),
+            getPricesWithClassInstance: reqParams => this.buildMethod('v2', 'getPricesWithClassInstance')(reqParams)
+        };
     }
 
-    //Dynamically building class methods
-    //
-    buildClassMethod(version, methodName, method) {
-
-
-      / const METHOD = async function (clientRequestParams) {
-            const SCHEDULE_REQUEST = STATE.limiter.schedule;
-
-            //Check if method is private and API key is not passed
-            SELF.checkAPIKey(method.isPrivate);
-
-            // Check if params object is valid
-            SELF.validateRequestParams(clientRequestParams, method);
-
-            //Build request params object
-            const REQUEST_PARAMS = BUILD_REQUEST_PARAMS(clientRequestParams, STATE);
-
-            //Call API fetcher by limiter schedule
-            return (
-                SCHEDULE_REQUEST(() => FETCH_API(method, REQUEST_PARAMS))
-                    // Return result of callback function or result itself
-                    .then((APIResponse) =>
-                        APIResponse.error
-                            ? SELF.returnError(APIResponse, method, REQUEST_PARAMS)
-                            : APIResponse
-                    )
-            );
-        }
-        Object.defineProperty(METHOD, 'name', {value: methodName, writable: false});
-        this[version][methodName] = METHOD.bind(this);
+    /**
+     *
+     * @param {any} customParam
+     * @returns {Object} - returns init options and client's param to test class initialization
+     */
+    test(customParam) {
+        return {
+            ...this.initOptions, customParam,
+        };
     }
 
-    returnError(APIResponse, method, requestParams) {
-        return requestParams.APIErrorsToJSON
-            ? APIResponse
-            : API_ERROR_EMITTER.emit("error", APIResponse);
+    /**
+     *
+     * @param {String} version
+     * @param {String} methodName
+     * @returns {Function} - takes version and method name and returns a class method like APIProvider.v1.someMethod(reqParams)
+     */
+    buildMethod(version, methodName) {
+        /**
+         * Import method from method props object
+         */
+        const METHOD = GET_METHOD_DATA(version)[methodName];
+
+        /**
+         * Declare class method
+         * @param {Object} reqParams
+         * @returns {Promise<*>}
+         * @constructor
+         */
+        const CLASS_METHOD = async function (reqParams = {}) {
+            /**
+             * Get limiter
+             * @type {Promise}
+             */
+            const SCHEDULE_REQUEST = this.state.limiter.schedule;
+
+            /**
+             * Check if method is private and API key is not passed
+             */
+            this.checkAPIKey(METHOD.isPrivate);
+
+            /**
+             * Check if params object is valid
+             */
+            validateRequestParams(reqParams, METHOD);
+
+            /**
+             *
+             * @type {Object} Build params from
+             * request params and state object set in constructor and pass it to API caller
+             */
+            const REQUEST_PARAMS = BUILD_REQUEST_PARAMS(reqParams, this.state);
+
+            /**
+             * Call API fetcher by limiter schedule with METHOD object and request params concat
+             */
+            return SCHEDULE_REQUEST(() => FETCH_API(METHOD, REQUEST_PARAMS)
+                /**
+                 * Check if error returned and process it
+                 */
+                .then(APIResponse => this.processAPIError(APIResponse, METHOD, REQUEST_PARAMS))
+                .then(APIResponse => APIResponse));
+
+        };
+
+        /**
+         * Set method name as the name of the function for future needs
+         */
+        Object.defineProperty(CLASS_METHOD, 'name', {
+            value: methodName, writable: false
+        });
+
+        /**
+         * Return an async function as a value for method key
+         */
+        return CLASS_METHOD.bind(this);
     }
 
+    /**
+     * Check response for errors and return JSON or throw smth
+     * @param APIResponse
+     * @param method
+     * @param reqParams
+     * @returns {any}
+     */
+    processAPIError(APIResponse, method, reqParams) {
+
+        /**
+         * If response is not successful and option is to return JSON, return it. Or throw an error
+         */
+        return !APIResponse.success &&
+            reqParams.APIErrorsToJSON ?
+                APIResponse :
+                ErrorEmitter.emit('API_Error', APIResponse);
+    }
+
+    /**
+     * Check if method requires auth and API key was not passed
+     * @param methodIsPrivate
+     * @returns {boolean}
+     */
     checkAPIKey(methodIsPrivate) {
-        return (
-            !STATE.APIParams.apiKey &&
+        console.log({
+            STATE: this.state
+        })
+        return !this.state.APIKey &&
             methodIsPrivate &&
-            CLIENT_ERROR_EMITTER.emit("error", "no_api_key_for_private_method")
-        );
+            ErrorEmitter.emit('client_error', 'no_api_key_for_private_method');
     }
 
-    validateRequestParams(requestParams, method) {
-        return VALIDATE_PARAMS(requestParams, method.paramsValidationSchema);
-    }
+
 };
 
-function
-
-setState(state) {
+/**
+ * Creates an unreachable state object
+ * @param state
+ */
+function setState(state) {
     Object.keys(state).map((key) => {
         STATE[key] = state[key];
     });

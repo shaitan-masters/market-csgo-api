@@ -1,9 +1,8 @@
 const JOI = require("joi");
-const Emitters = require("./../../emitters");
+const ErrorEmitter = require("@ErrorEmitter");
 
 
-module.exports = (object, schema = JOI.any(), emitterName = 'CRASH_EMITTER') => {
-
-  const  ERROR = schema.validate(object, { abortEarly: false }).error;
-  return ERROR && Emitters[emitterName].emit('error', ERROR);
+module.exports = (object, schema = JOI.any(), errorEvent = 'uncaught_error') => {
+   const  ERROR = schema.validate(object, { abortEarly: false }).error;
+  return ERROR && ErrorEmitter.emit(errorEvent, ERROR.details[0]);
 };

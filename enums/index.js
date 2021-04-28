@@ -1,6 +1,7 @@
 module.exports = {
-    LIMITER_OPTIONS: require('./limiter_options'),
-    MARKET_API_VERSIONS: require('./versions'),
-    LANGUAGES: require('./languages'),
-    CURRENCIES: require('./currencies')
+    limiterOptions: require('./limiter_options'),
+    marketAPIVersions: require('./versions'),
+    languages: require('./languages'),
+    currencies: require('./currencies'),
+    defaultAPIParams: require('./default_API_params')
 }
