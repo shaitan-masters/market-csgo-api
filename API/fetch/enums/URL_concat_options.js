@@ -1,5 +1,5 @@
 module.exports =  Object.freeze({
-    version: {
+    versions: {
         'v1': '',
         'v2': '/v2'
     },

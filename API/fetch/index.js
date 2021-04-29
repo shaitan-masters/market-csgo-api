@@ -5,18 +5,22 @@ const CONFIG = require("config");
 const { CRASH_EMITTER } = require("@emitters");
 
 module.exports = function (method, methodParams, state) {
+
   const URL = BUILD_URL({
     ...state.APIParams,
     ...CONFIG.get("APIConfig"),
     ...method,
   });
+
+
   const GOT_OPTIONS = BUILD_GOT_OPTIONS({
     ...methodParams,
     ...method,
+    ...state
   });
 
   try {
-    return FETCH_STUFF(URL, GOT_OPTIONS).then(({ body }) => body);
+    return FETCH_STUFF(URL, GOT_OPTIONS).then(({body}) =>  body);
   } catch (fetchError) {
     CRASH_EMITTER.emit("API_error", fetchError);
   }

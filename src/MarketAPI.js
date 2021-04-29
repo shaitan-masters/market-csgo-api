@@ -88,24 +88,24 @@ module.exports = class MarketAPI {
      */
     get v1() {
         return {
-            setToken: reqParams => this.buildMethod('v1', 'setToken')(reqParams),
-            operationHistory: reqParams => this.buildMethod('v1', 'operationHistory')(reqParams),
-            getProfileItems: reqParams => this.buildMethod('v1', 'getProfileItems')(reqParams),
-            itemInfo: reqParams => this.buildMethod('v1', 'itemInfo')(reqParams),
-            setPrice: reqParams => this.buildMethod('v1', 'setPrice')(reqParams),
-            itemRequest: reqParams => this.buildMethod('v1', 'itemRequest')(reqParams),
-            massSetPrice: reqParams => this.buildMethod('v1', 'massSetPrice')(reqParams),
-            getOrders: reqParams => this.buildMethod('v1', 'getOrders')(reqParams),
-            insertOrder: reqParams => this.buildMethod('v1', 'insertOrder')(reqParams),
-            updateOrder: reqParams => this.buildMethod('v1', 'updateOrder')(reqParams),
-            processOrder: reqParams => this.buildMethod('v1', 'processOrder')(reqParams),
-            updateNotification: reqParams => this.buildMethod('v1', 'updateNotification')(reqParams),
-            getMassInfo: reqParams => this.buildMethod('v1', 'getMassInfo')(reqParams),
-            getFloatHash: reqParams => this.buildMethod('v1', 'getFloatHash')(reqParams),
-            getWSAuth: reqParams => this.buildMethod('v1', 'getWSAuth')(reqParams),
-            getDBFileName: reqParams => this.buildMethod('v1', 'getDBFileName')(reqParams),
-            getDBData: reqParams => this.buildMethod('v1', 'getDBData')(reqParams),
-            getHistory: reqParams => this.buildMethod('v1', 'getHistory')(reqParams)
+            setToken: reqParams => this.buildMethod.call(this, 'v1', 'setToken')(reqParams),
+            operationHistory: reqParams => this.buildMethod.call(this, 'v1', 'operationHistory')(reqParams),
+            getProfileItems: reqParams => this.buildMethod.call(this, 'v1', 'getProfileItems')(reqParams),
+            itemInfo: reqParams => this.buildMethod.call(this, 'v1', 'itemInfo')(reqParams),
+            setPrice: reqParams => this.buildMethod.call(this, 'v1', 'setPrice')(reqParams),
+            itemRequest: reqParams => this.buildMethod.call(this, 'v1', 'itemRequest')(reqParams),
+            massSetPrice: reqParams => this.buildMethod.call(this, 'v1', 'massSetPrice')(reqParams),
+            getOrders: reqParams => this.buildMethod.call(this, 'v1', 'getOrders')(reqParams),
+            insertOrder: reqParams => this.buildMethod.call(this, 'v1', 'insertOrder')(reqParams),
+            updateOrder: reqParams => this.buildMethod.call(this, 'v1', 'updateOrder')(reqParams),
+            processOrder: reqParams => this.buildMethod.call(this, 'v1', 'processOrder')(reqParams),
+            updateNotification: reqParams => this.buildMethod.call(this, 'v1', 'updateNotification')(reqParams),
+            getMassInfo: reqParams => this.buildMethod.call(this, 'v1', 'getMassInfo')(reqParams),
+            getFloatHash: reqParams => this.buildMethod.call(this, 'v1', 'getFloatHash')(reqParams),
+            getWSAuth: reqParams => this.buildMethod.call(this, 'v1', 'getWSAuth')(reqParams),
+            getDBFileName: reqParams => this.buildMethod.call(this, 'v1', 'getDBFileName')(reqParams),
+            getDBData: reqParams => this.buildMethod.call(this, 'v1', 'getDBData')(reqParams),
+            getHistory: reqParams => this.buildMethod.call(this, 'v1', 'getHistory')(reqParams)
         };
     }
 
@@ -115,34 +115,34 @@ module.exports = class MarketAPI {
      */
     get v2() {
         return {
-            getMoney: reqParams => this.buildMethod('v2', 'getMoney')(reqParams),
-            goOffline: reqParams => this.buildMethod('v2', 'goOffline')(reqParams),
-            ping: reqParams => this.buildMethod('v2', 'ping')(reqParams),
-            updateInventory: reqParams => this.buildMethod('v2', 'updateInventory')(reqParams),
-            items: reqParams => this.buildMethod('v2', 'items')(reqParams),
-            history: reqParams => this.buildMethod('v2', 'history')(reqParams),
-            trades: reqParams => this.buildMethod('v2', 'trades')(reqParams),
-            transferDiscounts: reqParams => this.buildMethod('v2', 'transferDiscounts')(reqParams),
-            getMySteamId: reqParams => this.buildMethod('v2', 'getMySteamId')(reqParams),
-            myInventory: reqParams => this.buildMethod('v2', 'myInventory')(reqParams),
-            buy: reqParams => this.buildMethod('v2', 'buy')(reqParams),
-            buyFor: reqParams => this.buildMethod('v2', 'buyFor')(reqParams),
-            getBuyInfoByCustomId: reqParams => this.buildMethod('v2', 'getBuyInfoByCustomId')(reqParams),
-            getListBuyInfoByCustomId: reqParams => this.buildMethod('v2', 'getListBuyInfoByCustomId')(reqParams),
-            addToSale: reqParams => this.buildMethod('v2', 'addToSale')(reqParams),
-            setPrice: reqParams => this.buildMethod('v2', 'setPrice')(reqParams),
-            removeAllFromSale: reqParams => this.buildMethod('v2', 'removeAllFromSale')(reqParams),
-            tradeRequestGive: reqParams => this.buildMethod('v2', 'tradeRequestGive')(reqParams),
-            tradeRequestGiveP2p: reqParams => this.buildMethod('v2', 'tradeRequestGiveP2p')(reqParams),
-            tradeRequestGiveP2pAll: reqParams => this.buildMethod('v2', 'tradeRequestGiveP2pAll')(reqParams),
-            searchItemByHashName: reqParams => this.buildMethod('v2', 'searchItemByHashName')(reqParams),
-            searchItemByHashNameSpecific: reqParams => this.buildMethod('v2', 'searchItemByHashNameSpecific')(reqParams),
-            searchListItemsByHashNameAll: reqParams => this.buildMethod('v2', 'searchListItemsByHashNameAll')(reqParams),
-            getListItemsInfo: reqParams => this.buildMethod('v2', 'getListItemsInfo')(reqParams),
-            getWSAuth: reqParams => this.buildMethod('v2', 'getWSAuth')(reqParams),
-            test: reqParams => this.buildMethod('v2', 'test')(reqParams),
-            getPrices: reqParams => this.buildMethod('v2', 'getPrices')(reqParams),
-            getPricesWithClassInstance: reqParams => this.buildMethod('v2', 'getPricesWithClassInstance')(reqParams)
+            getMoney: reqParams => this.buildMethod.call(this, 'v2', 'getMoney')(reqParams),
+            goOffline: reqParams => this.buildMethod.call(this, 'v2', 'goOffline')(reqParams),
+            ping: reqParams => this.buildMethod.call(this, 'v2', 'ping')(reqParams),
+            updateInventory: reqParams => this.buildMethod.call(this, 'v2', 'updateInventory')(reqParams),
+            items: reqParams => this.buildMethod.call(this, 'v2', 'items')(reqParams),
+            history: reqParams => this.buildMethod.call(this, 'v2', 'history')(reqParams),
+            trades: reqParams => this.buildMethod.call(this, 'v2', 'trades')(reqParams),
+            transferDiscounts: reqParams => this.buildMethod.call(this, 'v2', 'transferDiscounts')(reqParams),
+            getMySteamId: reqParams => this.buildMethod.call(this, 'v2', 'getMySteamId')(reqParams),
+            myInventory: reqParams => this.buildMethod.call(this, 'v2', 'myInventory')(reqParams),
+            buy: reqParams => this.buildMethod.call(this, 'v2', 'buy')(reqParams),
+            buyFor: reqParams => this.buildMethod.call(this, 'v2', 'buyFor')(reqParams),
+            getBuyInfoByCustomId: reqParams => this.buildMethod.call(this, 'v2', 'getBuyInfoByCustomId')(reqParams),
+            getListBuyInfoByCustomId: reqParams => this.buildMethod.call(this, 'v2', 'getListBuyInfoByCustomId')(reqParams),
+            addToSale: reqParams => this.buildMethod.call(this, 'v2', 'addToSale')(reqParams),
+            setPrice: reqParams => this.buildMethod.call(this, 'v2', 'setPrice')(reqParams),
+            removeAllFromSale: reqParams => this.buildMethod.call(this, 'v2', 'removeAllFromSale')(reqParams),
+            tradeRequestGive: reqParams => this.buildMethod.call(this, 'v2', 'tradeRequestGive')(reqParams),
+            tradeRequestGiveP2p: reqParams => this.buildMethod.call(this, 'v2', 'tradeRequestGiveP2p')(reqParams),
+            tradeRequestGiveP2pAll: reqParams => this.buildMethod.call(this, 'v2', 'tradeRequestGiveP2pAll')(reqParams),
+            searchItemByHashName: reqParams => this.buildMethod.call(this, 'v2', 'searchItemByHashName')(reqParams),
+            searchItemByHashNameSpecific: reqParams => this.buildMethod.call(this, 'v2', 'searchItemByHashNameSpecific')(reqParams),
+            searchListItemsByHashNameAll: reqParams => this.buildMethod.call(this, 'v2', 'searchListItemsByHashNameAll')(reqParams),
+            getListItemsInfo: reqParams => this.buildMethod.call(this, 'v2', 'getListItemsInfo')(reqParams),
+            getWSAuth: reqParams => this.buildMethod.call(this, 'v2', 'getWSAuth')(reqParams),
+            test: reqParams => this.buildMethod.call(this, 'v2', 'test')(reqParams),
+            getPrices: reqParams => this.buildMethod.call(this, 'v2', 'getPrices')(reqParams),
+            getPricesWithClassInstance: reqParams => this.buildMethod.call(this, 'v2', 'getPricesWithClassInstance')(reqParams)
         };
     }
 
@@ -180,17 +180,17 @@ module.exports = class MarketAPI {
              * Get limiter
              * @type {Promise}
              */
-            const SCHEDULE_REQUEST = this.state.limiter.schedule;
+            //const SCHEDULE_REQUEST = this.state.limiter.schedule;
 
             /**
              * Check if method is private and API key is not passed
              */
-            this.checkAPIKey(METHOD.isPrivate);
+            this.checkAPIKey.call(this, METHOD.isPrivate);
 
             /**
              * Check if params object is valid
              */
-            validateRequestParams(reqParams, METHOD);
+            validateRequestParams(reqParams,  METHOD);
 
             /**
              *
@@ -202,11 +202,11 @@ module.exports = class MarketAPI {
             /**
              * Call API fetcher by limiter schedule with METHOD object and request params concat
              */
-            return SCHEDULE_REQUEST(() => FETCH_API(METHOD, REQUEST_PARAMS)
+            return  this.state.limiter.schedule(() => FETCH_API(METHOD, REQUEST_PARAMS, this.state)
                 /**
                  * Check if error returned and process it
                  */
-                .then(APIResponse => this.processAPIError(APIResponse, METHOD, REQUEST_PARAMS))
+                .then(APIResponse =>   this.processAPIError.call(this, APIResponse, METHOD, REQUEST_PARAMS))
                 .then(APIResponse => APIResponse));
 
         };
@@ -236,8 +236,8 @@ module.exports = class MarketAPI {
         /**
          * If response is not successful and option is to return JSON, return it. Or throw an error
          */
-        return !APIResponse.success &&
-            reqParams.APIErrorsToJSON ?
+        return APIResponse.success ? APIResponse : (!APIResponse.success &&
+            reqParams.APIErrorsToJSON) ?
                 APIResponse :
                 ErrorEmitter.emit('API_Error', APIResponse);
     }
@@ -248,9 +248,7 @@ module.exports = class MarketAPI {
      * @returns {boolean}
      */
     checkAPIKey(methodIsPrivate) {
-        console.log({
-            STATE: this.state
-        })
+
         return !this.state.APIKey &&
             methodIsPrivate &&
             ErrorEmitter.emit('client_error', 'no_api_key_for_private_method');

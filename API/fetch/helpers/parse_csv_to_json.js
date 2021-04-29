@@ -2,6 +2,7 @@ const PARSER = require('papaparse');
 const {API_ERRORS_EMITTER} = require('@emitters');
 
 module.exports = (responseCSV, methodParams) => {
+
     const PARSED = PARSER.parse(responseCSV, {
         header: true,
         trimHeader: true,
