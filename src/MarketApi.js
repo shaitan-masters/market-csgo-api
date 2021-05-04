@@ -8,7 +8,7 @@ const Papa = require('papaparse');
 const queryStringify = require('querystring').stringify;
 
 const MarketApiError = require("./MarketApiError");
-
+const routesMatch = require('./../enums/routes_match');
 /**
  * API
  * https://market.csgo.com/docs/
@@ -332,9 +332,23 @@ class MarketApi {
      * @returns {Promise}
      */
     callMethodWithKey(method, gotOptions = null, params = null) {
-        let url = this.formatMethodWithKey(MarketApi.VERSIONS.V1, method, params);
+        // let url = this.formatMethodWithKey(MarketApi.VERSIONS.V1, method, params);
 
-        return this.callApiUrl(url, gotOptions);
+        /**
+         * We get the routes v1: v2 and find the match
+         */
+        let matchingRoute = routesMatch[method];
+
+        /**
+         * If method is present in v2 rewrite the method string e.g. PingPong => ping
+          * @type {string|*|String|Array}
+         */
+        method = matchingRoute.route || method;
+
+        /**
+         * If route is present in v2 call v2 method with the new string. If no, return common no success response.
+         */
+        return matchingRoute.route ? this.callV2MethodWithKey(method, gotOptions, params) : {success: false};
     }
 
     /**
