@@ -7,10 +7,12 @@ const {
     limiterOptions: LIMITER_OPTIONS, defaultAPIParams: DEFAULT_API_PARAMS
 } = require('./../enums');
 const ErrorEmitter = require('@ErrorEmitter');
-const GET_METHOD_DATA = require('./../API/v/helpers/get_method_data');
-const FETCH_API = require('./../API/fetch');
-const BUILD_REQUEST_PARAMS = require('./../helpers/build_request_params');
+const getMethodData = require('./../API/v/helpers/get_method_data');
+const fetchAPI = require('./../API/fetch');
+const buildReuestParams = require('./../helpers/build_request_params');
 const STATE = {};
+const v1 = require('./v1');
+const v2 = require('./v2');
 
 module.exports = class MarketAPI {
     /**
@@ -79,71 +81,17 @@ module.exports = class MarketAPI {
          *
          * @type {Function} - bind class builder to this
          */
-        this.buildMethod = this.buildMethod.bind(this);
-    }
+        this.callMethod = this.callMethod.bind(this);
 
-    /**
-     * Allows to call APIProvder.v1.someMethod()
-     * @returns {{operationHistory: (function(*=): *), itemRequest: (function(*=): *), getDBData: (function(*=): *), getProfileItems: (function(*=): *), insertOrder: (function(*=): *), getWSAuth: (function(*=): *), updateNotification: (function(*=): *), updateOrder: (function(*=): *), itemInfo: (function(*=): *), setPrice: (function(*=): *), getOrders: (function(*=): *), getDBFileName: (function(*=): *), processOrder: (function(*=): *), getMassInfo: (function(*=): *), getHistory: (function(*=): *), setToken: (function(*=): *), massSetPrice: (function(*=): *), getFloatHash: (function(*=): *)}}
-     */
-    get v1() {
-        return {
-            setToken: reqParams => this.buildMethod.call(this, 'v1', 'setToken')(reqParams),
-            operationHistory: reqParams => this.buildMethod.call(this, 'v1', 'operationHistory')(reqParams),
-            getProfileItems: reqParams => this.buildMethod.call(this, 'v1', 'getProfileItems')(reqParams),
-            itemInfo: reqParams => this.buildMethod.call(this, 'v1', 'itemInfo')(reqParams),
-            setPrice: reqParams => this.buildMethod.call(this, 'v1', 'setPrice')(reqParams),
-            itemRequest: reqParams => this.buildMethod.call(this, 'v1', 'itemRequest')(reqParams),
-            massSetPrice: reqParams => this.buildMethod.call(this, 'v1', 'massSetPrice')(reqParams),
-            getOrders: reqParams => this.buildMethod.call(this, 'v1', 'getOrders')(reqParams),
-            insertOrder: reqParams => this.buildMethod.call(this, 'v1', 'insertOrder')(reqParams),
-            updateOrder: reqParams => this.buildMethod.call(this, 'v1', 'updateOrder')(reqParams),
-            processOrder: reqParams => this.buildMethod.call(this, 'v1', 'processOrder')(reqParams),
-            updateNotification: reqParams => this.buildMethod.call(this, 'v1', 'updateNotification')(reqParams),
-            getMassInfo: reqParams => this.buildMethod.call(this, 'v1', 'getMassInfo')(reqParams),
-            getFloatHash: reqParams => this.buildMethod.call(this, 'v1', 'getFloatHash')(reqParams),
-            getWSAuth: reqParams => this.buildMethod.call(this, 'v1', 'getWSAuth')(reqParams),
-            getDBFileName: reqParams => this.buildMethod.call(this, 'v1', 'getDBFileName')(reqParams),
-            getDBData: reqParams => this.buildMethod.call(this, 'v1', 'getDBData')(reqParams),
-            getHistory: reqParams => this.buildMethod.call(this, 'v1', 'getHistory')(reqParams)
-        };
-    }
+        /**
+         * Create getter v1 to be called like APIProvider.v1.pingPong()
+         */
+        Object.defineProperty(this, 'v1', {get: v1.bind(this)});
+        /**
+         * Create getter v2 to be called like APIProvider.v2.getMoney()
+         */
+        Object.defineProperty(this, 'v2', {get: v2.bind(this)});
 
-    /**
-     * Allows to call APIProvder.v2.someMethod()
-     * @returns {{operationHistory: (function(*=): *), itemRequest: (function(*=): *), getDBData: (function(*=): *), getProfileItems: (function(*=): *), insertOrder: (function(*=): *), getWSAuth: (function(*=): *), updateNotification: (function(*=): *), updateOrder: (function(*=): *), itemInfo: (function(*=): *), setPrice: (function(*=): *), getOrders: (function(*=): *), getDBFileName: (function(*=): *), processOrder: (function(*=): *), getMassInfo: (function(*=): *), getHistory: (function(*=): *), setToken: (function(*=): *), massSetPrice: (function(*=): *), getFloatHash: (function(*=): *)}}
-     */
-    get v2() {
-        return {
-            getMoney: reqParams => this.buildMethod.call(this, 'v2', 'getMoney')(reqParams),
-            goOffline: reqParams => this.buildMethod.call(this, 'v2', 'goOffline')(reqParams),
-            ping: reqParams => this.buildMethod.call(this, 'v2', 'ping')(reqParams),
-            updateInventory: reqParams => this.buildMethod.call(this, 'v2', 'updateInventory')(reqParams),
-            items: reqParams => this.buildMethod.call(this, 'v2', 'items')(reqParams),
-            history: reqParams => this.buildMethod.call(this, 'v2', 'history')(reqParams),
-            trades: reqParams => this.buildMethod.call(this, 'v2', 'trades')(reqParams),
-            transferDiscounts: reqParams => this.buildMethod.call(this, 'v2', 'transferDiscounts')(reqParams),
-            getMySteamId: reqParams => this.buildMethod.call(this, 'v2', 'getMySteamId')(reqParams),
-            myInventory: reqParams => this.buildMethod.call(this, 'v2', 'myInventory')(reqParams),
-            buy: reqParams => this.buildMethod.call(this, 'v2', 'buy')(reqParams),
-            buyFor: reqParams => this.buildMethod.call(this, 'v2', 'buyFor')(reqParams),
-            getBuyInfoByCustomId: reqParams => this.buildMethod.call(this, 'v2', 'getBuyInfoByCustomId')(reqParams),
-            getListBuyInfoByCustomId: reqParams => this.buildMethod.call(this, 'v2', 'getListBuyInfoByCustomId')(reqParams),
-            addToSale: reqParams => this.buildMethod.call(this, 'v2', 'addToSale')(reqParams),
-            setPrice: reqParams => this.buildMethod.call(this, 'v2', 'setPrice')(reqParams),
-            removeAllFromSale: reqParams => this.buildMethod.call(this, 'v2', 'removeAllFromSale')(reqParams),
-            tradeRequestGive: reqParams => this.buildMethod.call(this, 'v2', 'tradeRequestGive')(reqParams),
-            tradeRequestGiveP2p: reqParams => this.buildMethod.call(this, 'v2', 'tradeRequestGiveP2p')(reqParams),
-            tradeRequestGiveP2pAll: reqParams => this.buildMethod.call(this, 'v2', 'tradeRequestGiveP2pAll')(reqParams),
-            searchItemByHashName: reqParams => this.buildMethod.call(this, 'v2', 'searchItemByHashName')(reqParams),
-            searchItemByHashNameSpecific: reqParams => this.buildMethod.call(this, 'v2', 'searchItemByHashNameSpecific')(reqParams),
-            searchListItemsByHashNameAll: reqParams => this.buildMethod.call(this, 'v2', 'searchListItemsByHashNameAll')(reqParams),
-            getListItemsInfo: reqParams => this.buildMethod.call(this, 'v2', 'getListItemsInfo')(reqParams),
-            getWSAuth: reqParams => this.buildMethod.call(this, 'v2', 'getWSAuth')(reqParams),
-            test: reqParams => this.buildMethod.call(this, 'v2', 'test')(reqParams),
-            getPrices: reqParams => this.buildMethod.call(this, 'v2', 'getPrices')(reqParams),
-            getPricesWithClassInstance: reqParams => this.buildMethod.call(this, 'v2', 'getPricesWithClassInstance')(reqParams)
-        };
     }
 
     /**
@@ -158,70 +106,46 @@ module.exports = class MarketAPI {
     }
 
     /**
-     *
+     * @param {Object} reqParams
      * @param {String} version
      * @param {String} methodName
-     * @returns {Function} - takes version and method name and returns a class method like APIProvider.v1.someMethod(reqParams)
+     * @returns {Function} - takes request params, version and method name and returns
+     * a class method like APIProvider.v1.someMethod({param1: 'string'})
      */
-    buildMethod(version, methodName) {
+    async callMethod(reqParams = {}, version, methodName) {
+
         /**
          * Import method from method props object
          */
-        const METHOD = GET_METHOD_DATA(version)[methodName];
+        const METHOD_DATA = getMethodData(version)[methodName];
 
         /**
-         * Declare class method
-         * @param {Object} reqParams
-         * @returns {Promise<*>}
-         * @constructor
+         * Check if method is private and API key is not passed
          */
-        const CLASS_METHOD = async function (reqParams = {}) {
-            /**
-             * Get limiter
-             * @type {Promise}
-             */
-            //const SCHEDULE_REQUEST = this.state.limiter.schedule;
-
-            /**
-             * Check if method is private and API key is not passed
-             */
-            this.checkAPIKey.call(this, METHOD.isPrivate);
-
-            /**
-             * Check if params object is valid
-             */
-            validateRequestParams(reqParams,  METHOD);
-
-            /**
-             *
-             * @type {Object} Build params from
-             * request params and state object set in constructor and pass it to API caller
-             */
-            const REQUEST_PARAMS = BUILD_REQUEST_PARAMS(reqParams, this.state);
-
-            /**
-             * Call API fetcher by limiter schedule with METHOD object and request params concat
-             */
-            return  this.state.limiter.schedule(() => FETCH_API(METHOD, REQUEST_PARAMS, this.state)
-                /**
-                 * Check if error returned and process it
-                 */
-                .then(APIResponse =>   this.processAPIError.call(this, APIResponse, METHOD, REQUEST_PARAMS))
-                .then(APIResponse => APIResponse));
-
-        };
+        this.checkAPIKey.call(this, METHOD_DATA.isPrivate);
 
         /**
-         * Set method name as the name of the function for future needs
+         * Check if params object is valid
          */
-        Object.defineProperty(CLASS_METHOD, 'name', {
-            value: methodName, writable: false
-        });
+        validateRequestParams(reqParams, METHOD_DATA.requestValidationSchema);
 
         /**
-         * Return an async function as a value for method key
+         *
+         * @type {Object} Build params from
+         * request params and state object set in constructor and pass it to API caller
          */
-        return CLASS_METHOD.bind(this);
+        const REQUEST_PARAMS = buildReuestParams(reqParams, this.state);
+
+        /**
+         * Call API fetcher by limiter schedule with METHOD object and request params concat
+         */
+        return this.state.limiter.schedule(() => fetchAPI(METHOD_DATA, REQUEST_PARAMS, this.state)
+            /**
+             * Check if error returned and process it
+             */
+            .then(APIResponse => this.processAPIError.call(this, APIResponse, METHOD_DATA, REQUEST_PARAMS))
+            .then(APIResponse => APIResponse));
+
     }
 
     /**
@@ -236,10 +160,7 @@ module.exports = class MarketAPI {
         /**
          * If response is not successful and option is to return JSON, return it. Or throw an error
          */
-        return APIResponse.success ? APIResponse : (!APIResponse.success &&
-            reqParams.APIErrorsToJSON) ?
-                APIResponse :
-                ErrorEmitter.emit('API_Error', APIResponse);
+        return APIResponse.success ? APIResponse : (!APIResponse.success && reqParams.APIErrorsToJSON) ? APIResponse : ErrorEmitter.emit('API_Error', APIResponse);
     }
 
     /**
@@ -249,11 +170,8 @@ module.exports = class MarketAPI {
      */
     checkAPIKey(methodIsPrivate) {
 
-        return !this.state.APIKey &&
-            methodIsPrivate &&
-            ErrorEmitter.emit('client_error', 'no_api_key_for_private_method');
+        return !this.state.APIKey && methodIsPrivate && ErrorEmitter.emit('client_error', 'no_api_key_for_private_method');
     }
-
 
 };
 

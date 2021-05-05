@@ -9,7 +9,7 @@ module.exports = (version) => {
       METHODS_TO_EXPORT[methodNameAsKey] = {
         ...METHODS_DEFAULTS[methodPrivacyType][methodNameAsKey],
         isPrivate: methodPrivacyType === "private",
-        paramsValidationSchema: REQUEST_PARAMS_VALIDATION_SCHEMA[methodNameAsKey],
+        requestValidationSchema: REQUEST_PARAMS_VALIDATION_SCHEMA[methodNameAsKey],
         responseValidationSchema: RESPONSE_VALIDATION_SCHEMA[methodNameAsKey],
         version,
         name: METHODS_DEFAULTS[methodPrivacyType][methodNameAsKey].name || methodNameAsKey,

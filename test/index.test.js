@@ -19,6 +19,7 @@ describe('Test class and methods are reachable', function () {
 
     V1_METHODS.map(methodName => {
 
+
         test('test class to have v1 method ' + methodName, () => {
             expect(MARKET_PROVIDER.v1).toHaveProperty(methodName);
             expect(typeof MARKET_PROVIDER.v1[methodName]).toBe('function');
