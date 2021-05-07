@@ -19,8 +19,9 @@
     "sdk"
   ],
   "scripts": {
-    "test": "NODE_ENV=test jest test/index.test.js  --runInBand --detectOpenHandles --testTimeout=10000",
-    "dev": "nodemon dist/index.js --exec  jest test/index.test.js  --runInBand --detectOpenHandles --testTimeout=10000"
+    "build": "tsc  -p  ./src",
+    "test": "NODE_ENV=test jest test/index.test.ts  --runInBand --detectOpenHandles --testTimeout=10000",
+    "dev": "nodemon dist/index.js --exec  jest test/index.test.ts  --runInBand --detectOpenHandles --testTimeout=10000"
   },
   "publishConfig": {
     "access": "public"
@@ -46,7 +47,10 @@
   "jest": {
     "coverageDirectory": "test/coverage",
     "setupFiles": [
-      "./test/setup.js"
+      "./test/setup.ts"
+    ],
+    "testMatch": [
+      "**/test/index.test.ts"
     ],
     "testEnvironment": "node",
     "moduleNameMapper": {
@@ -61,6 +65,7 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/preset-typescript": "^7.13.0",
     "bottleneck": "^2.19.5",
     "config": "^3.3.6",
     "fs": "0.0.1-security",

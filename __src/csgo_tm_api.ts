@@ -10,6 +10,8 @@ import {stringify as queryStringify} from 'querystring';
  * API error
  */
 class CSGOtmAPIError extends Error {
+	public name: any;
+
     constructor(message) {
         super(message);
 
@@ -23,6 +25,9 @@ class CSGOtmAPIError extends Error {
  * https://market.csgo.com/docs/
  */
 class CSGOtmAPI {
+	public options: any;
+	public limiter: any;
+
     static get defaultAppId() {
         return 730;
     }

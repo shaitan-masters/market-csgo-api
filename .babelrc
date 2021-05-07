@@ -7,7 +7,8 @@
           node: true
         }
       }
-    ]
+    ],
+    "@babel/preset-typescript"
   ],
   "plugins": [
     '@babel/plugin-proposal-class-properties',
@@ -17,7 +18,7 @@
       {
         "regenerator": true
       }
-    ]
+    ],
   ]
 }
 
