@@ -4,7 +4,7 @@
  */
 module.exports = function () {
     return {
-        getMoney: () => this.callMethod.call(this, null, 'v2', 'getMoney'),
+        getMoney: (reqParams) => this.callMethod.call(this, reqParams, 'v2', 'getMoney'),
         goOffline: (reqParams) => this.callMethod.call(this, reqParams, 'v2', 'goOffline'),
         ping: (reqParams) => this.callMethod.call(this, reqParams, 'v2', 'ping'),
         updateInventory: (reqParams) => this.callMethod.call(this, reqParams, 'v2', 'updateInventory'),

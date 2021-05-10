@@ -4,7 +4,13 @@
  */
 module.exports =   function    () {
     return {
-        getMoney:  (reqParams: object)  => this.callMethod.call(this, reqParams, 'v2', 'getMoney'),
+        /**
+         *
+         * @param reqParams {Object}
+         * This method returns current balance and
+         * Requires API key
+         */
+        getMoney:  (reqParams?: object)  => this.callMethod.call(this, reqParams, 'v2', 'getMoney'),
         goOffline: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'goOffline'),
         ping: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'ping'),
         updateInventory: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'updateInventory'),
@@ -14,6 +20,11 @@ module.exports =   function    () {
         transferDiscounts: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'transferDiscounts'),
         getMySteamId: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'getMySteamId'),
         myInventory: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'myInventory'),
+        /**
+         *
+         * @param reqParams {Object}
+         *
+         */
         buy: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'buy'),
         buyFor: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'buyFor'),
         getBuyInfoByCustomId: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'getBuyInfoByCustomId'),

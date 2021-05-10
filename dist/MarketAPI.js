@@ -23,18 +23,20 @@ module.exports = class MarketAPI {
      * @param {Object} initOptions - take options and create state
      */
     constructor(initOptions = {}) {
-        this.state = {
+        this.state = {};
+        this.initState = {
             APIErrorsToJSON: false,
             APIParams: {
                 currency: 'USD',
-                language: 'en'
+                language: 'en',
+                marketAppId: '730'
             },
+            APIKey: '',
             getWarnings: false,
             /**
              * Limiter options be always used cause the limit 5 requests/sec seems to stay for a long time (14.04.2021)
              */
-            limiter: new Bottleneck(LIMITER_OPTIONS),
-            APIKey: undefined
+            limiter: new Bottleneck(LIMITER_OPTIONS)
         };
         /**
          * Validate init options with Joi.
@@ -50,16 +52,16 @@ module.exports = class MarketAPI {
              *  Check if client would like to get Market API errors as JSON w/o throwing
              *  Default is false
              */
-            APIErrorsToJSON: APIErrorsToJSON || this.state.APIErrorsToJSON,
+            APIErrorsToJSON: APIErrorsToJSON || this.initState.APIErrorsToJSON,
             /**
              * Check if client would like to get warnings
              */
-            getWarnings: getWarnings || this.state.getWarnings,
+            getWarnings: getWarnings || this.initState.getWarnings,
             /**
              * Limiter options be always used cause the limit 5 requests/sec seems to stay for a long time (14.04.2021)
              */
-            limiter: this.state.limiter,
-            APIKey: APIKey || null,
+            limiter: this.initState.limiter,
+            APIKey,
             /**
              * Params to be used during API calls
              */

@@ -5,8 +5,8 @@ const {
 
 const {
     limiterOptions: LIMITER_OPTIONS, defaultAPIParams: DEFAULT_API_PARAMS
-} = require('./../enums');
-const ErrorEmitter = require('@ErrorEmitter');
+} = require('./enums');
+const errorEmitter = require('./emitters/error');
 const getMethodData = require('./../API/v/helpers/get_method_data');
 const fetchAPI = require('./../API/fetch');
 const buildRequestParams = require('./../helpers/build_request_params');
@@ -15,20 +15,21 @@ const v1 = require('./v1');
 const v2 = require('./v2');
 
 module.exports = class MarketAPI {
-
     state = {
         APIErrorsToJSON: false,
         APIParams: {
             currency: 'USD',
-            language: 'en'
+            language: 'en',
+            marketAppId: '730'
         },
+        APIKey: '',
         getWarnings: false,
         /**
          * Limiter options be always used cause the limit 5 requests/sec seems to stay for a long time (14.04.2021)
          */
-        limiter: new Bottleneck(LIMITER_OPTIONS),
-        APIKey: undefined
+        limiter: new Bottleneck(LIMITER_OPTIONS)
     };
+
     /**
      *
      * @param {Object} initOptions - take options and create state
@@ -40,7 +41,7 @@ module.exports = class MarketAPI {
             currency?: string,
             language?: string,
             marketAppId?: string
-        },
+        } ,
         getWarnings?: boolean
 
     } = {}) {
@@ -53,7 +54,7 @@ module.exports = class MarketAPI {
 
         const {
             APIErrorsToJSON,
-            APIKey,
+            APIKey = undefined,
             getWarnings,
             APIParams = {}
         } = initOptions;
@@ -79,7 +80,7 @@ module.exports = class MarketAPI {
             limiter: this.state.limiter, /**
              * Marketplace API key
              */
-            APIKey: APIKey || null,
+            APIKey: APIKey || '',
             /**
              * Params to be used during API calls
              */
@@ -136,7 +137,7 @@ module.exports = class MarketAPI {
      * @returns {Function} - takes request params, version and method name and returns
      * a class method like APIProvider.v1.someMethod({param1: 'string'})
      */
-    async callMethod(reqParams: object = {}, version?, methodName?) {
+    async callMethod(reqParams: object = {}, version:  "v1" | "v2", methodName: string) {
 
         /**
          * Import method from method props object
@@ -179,12 +180,16 @@ module.exports = class MarketAPI {
      * @param reqParams
      * @returns {any}
      */
-    processAPIError(APIResponse: object, method: object, reqParams: object) {
+    processAPIError(APIResponse: { success: boolean }, method: object, reqParams: { APIErrorsToJSON: boolean }) {
 
         /**
          * If response is not successful and option is to return JSON, return it. Or throw an error
          */
-        return APIResponse.success ? APIResponse : (!APIResponse.success && reqParams.APIErrorsToJSON) ? APIResponse : ErrorEmitter.emit('API_Error', APIResponse);
+        return APIResponse.success ?
+            APIResponse :
+            (!APIResponse.success && reqParams.APIErrorsToJSON) ?
+                APIResponse :
+                errorEmitter.emit('API_Error', APIResponse);
     }
 
     /**

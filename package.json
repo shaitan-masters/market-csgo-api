@@ -41,7 +41,7 @@
   "_moduleAliases": {
     "@validateWithJoi": "helpers/validators/index",
     "@emitters": "emitters/index",
-    "@ErrorEmitter": "emitters/error",
+    "@errorEmitter": "emitters/error",
     "@defaultValidationSchema": "enums/validation_schemas/default_validation_schema"
   },
   "jest": {

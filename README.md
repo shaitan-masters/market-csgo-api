@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# market.csgo.com API
+ 
 
 This is a node module for interacting with the market.csgo.com API.
 Docs for endpoints are available [here](https://market.csgo.com/docs/)
@@ -12,7 +11,12 @@ Docs for endpoints are available [here](https://market.csgo.com/docs/)
 
 ```javascript
 const MarketAPI = require('market-csgo-api');
-const api = new MarketAPI(options);
+const APIProvider = new MarketAPI();
+
+or
+
+const APIProvider = new MarketAPI(options)
+
 ```
 or
 ```javascript
@@ -21,39 +25,9 @@ import MarketAPI from 'market-csgo-api';
 
 ### Constructor params
 Params:
-- `options[apiKey]`: your API key **required**
-- `options[baseUrl]`: url to API. *Default: `https://market.csgo.com/`.*
-- `options[apiPath]`: relative path to API. *Default: `api`.*
-- `options[extendedError]`: Should module return full response and got options on market error. Default: `false`.
-- `options[useLimiter]`: enable [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Default: `true`.*
-- `options[gotOptions]`: options for [got](https://github.com/sindresorhus/got) module that would be applied for all API-call methods (except static). *Default: `{}`.*
-- `options[defaultGotOptions]`: default options for [got](https://github.com/sindresorhus/got) module for all API-call methods without `gotOptions` param(except static). *Default: `{}`.*
-- `options[limiterOptions]`: options for [bottleneck](https://github.com/SGrondin/bottleneck) limiter. *Default:*
-```
-{
-    maxConcurrent: 1,
-    minTime: 200,
-    highWater: -1,
-    strategy: Bottleneck.strategy.LEAK,
-    rejectOnDrop: true
-}
-```
+-  
 
 ## Properties
-
-#### Dynamic
-- `options`: merged object of your passed options and default ones
-- `apiUrl`: composed api url from base url and api path
-
-#### Static
-- `defaultAppId`: CS:GO Steam AppId - 730
-- `defaultBaseUrl`: `https://market.csgo.com/`
-- `LANGUAGES`: languages, supported by csgo.tm
-- `CREATE_TRADE_REQUEST_TYPE`: available types of trade requests
-- `MASS_INFO_SELL_BUY`: available types of 'SELL' and 'BUY' param in 'MassInfo' request
-- `MASS_INFO_HISTORY`: available types of 'HISTORY' param in 'MassInfo' request
-- `MASS_INFO_INFO`: available types of 'INFO' param in `MassInfo` request
-- `DEFAULT_MASS_INFO_PARAMS`: default params that will be substituted, when you did not provide some of them
 
 ## Methods
 
@@ -94,6 +68,37 @@ const instance = new MarketAPI({apiKey: 'xxxx'});
     let trades = await instance.accountGetTrades();
 })()
 ```
-=======
-To be continued
->>>>>>> 9f8214cc44d527d8a6266d7d81fd814e73d13bea
+ 
+
+### Structure
+
+Main module is MarketAPI class (src/MarketAPI);
+In it`s constructor we merge default options and client args.
+
+See list of options and their data types above.
+
+Class instance has v1 and v2 getters (src/v1, src/v2).
+Each version getter returns a hash of methodName: function()
+pairs.
+
+```javascript
+ itemInfo: (reqParams: object)  => this.callMethod.call(this, reqParams, 'v1', 'itemInfo'),
+```
+
+They can be called like this
+
+```javascript
+APIProvider.v1.getMoney()
+```
+
+Each function takes request params (hash or nothing) as an argument
+and returns a call of async class method "callMethod"
+
+```javascript
+callMethod(reqParams: object, version: string , methodName: string);
+
+e.g.
+
+callMethod({someParam: 1}, 'v1' , 'getMoney');
+
+```
