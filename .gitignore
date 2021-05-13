@@ -39,8 +39,9 @@ jspm_packages
 # Webstorm files
 .idea
 
+#Coverage data and API key
 test/stuff/test_API_key.js
-
 test/coverage/
 
-
+#Locked dependencies list
+package-lock.json
