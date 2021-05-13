@@ -43,5 +43,4 @@ test/stuff/test_API_key.js
 
 test/coverage/
 
-# Lib
-/lib/
+

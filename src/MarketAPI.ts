@@ -1,20 +1,20 @@
 const Bottleneck = require('bottleneck');
 const {
     validateInitOptions, validateRequestParams
-} = require('./../helpers');
+} = require('./helpers');
 
 const {
     limiterOptions: LIMITER_OPTIONS, defaultAPIParams: DEFAULT_API_PARAMS
 } = require('./enums');
 const errorEmitter = require('./emitters/error');
-const getMethodData = require('./../API/v/helpers/get_method_data');
-const fetchAPI = require('./../API/fetch');
-const buildRequestParams = require('./../helpers/build_request_params');
-const STATE = {};
+const getMethodData = require('./API/v/helpers/get_method_data');
+const fetchAPI = require('./API/fetch');
+const buildRequestParams = require('./helpers/build_request_params');
 const v1 = require('./v1');
 const v2 = require('./v2');
 
 module.exports = class MarketAPI {
+
     state = {
         APIErrorsToJSON: false,
         APIParams: {
@@ -37,14 +37,14 @@ module.exports = class MarketAPI {
     constructor(initOptions: {
         APIErrorsToJSON?: boolean,
         APIKey?: string,
-        APIParams?: {
+        APIParams: {
             currency?: string,
             language?: string,
             marketAppId?: string
-        } ,
+        } | undefined,
         getWarnings?: boolean
 
-    } = {}) {
+    }) {
         /**
          * Validate init options with Joi.
          * No args or false value will be assigned to an object
@@ -54,7 +54,7 @@ module.exports = class MarketAPI {
 
         const {
             APIErrorsToJSON,
-            APIKey = undefined,
+            APIKey,
             getWarnings,
             APIParams = {}
         } = initOptions;
@@ -102,9 +102,13 @@ module.exports = class MarketAPI {
             },
 
         };
+
+
+
+
         /**
          *
-         * @type {Function} - bind class builder to this
+         * @type {Function} - bind class builder to this to access methods after it's being called from v1/v2
          */
         this.callMethod = this.callMethod.bind(this);
 
@@ -119,16 +123,7 @@ module.exports = class MarketAPI {
 
     }
 
-    /**
-     *
-     * @param {any} customParam
-     * @returns {Object} - returns init options and client's param to test class initialization
-     */
-    test(customParam) {
-        return {
-            ...this.initOptions, customParam,
-        };
-    }
+
 
     /**
      * @param {Object} reqParams
@@ -137,7 +132,7 @@ module.exports = class MarketAPI {
      * @returns {Function} - takes request params, version and method name and returns
      * a class method like APIProvider.v1.someMethod({param1: 'string'})
      */
-    async callMethod(reqParams: object = {}, version:  "v1" | "v2", methodName: string) {
+    async callMethod(reqParams: object = {}, version: "v1" | "v2", methodName: string) {
 
         /**
          * Import method from method props object
@@ -168,8 +163,8 @@ module.exports = class MarketAPI {
             /**
              * Check if error returned and process it
              */
-            .then(APIResponse => this.processAPIError.call(this, APIResponse, METHOD_DATA, REQUEST_PARAMS))
-            .then(APIResponse => APIResponse));
+            .then((APIResponse: { success: boolean }) => this.processAPIError.call(this, APIResponse, METHOD_DATA, REQUEST_PARAMS))
+            .then((APIResponse: any) => APIResponse));
 
     }
 

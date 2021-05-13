@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const ERROR_EMITTER = new EventEmitter();
-const DICTIONARY = require('./../json/dictionary.json');
+const DICTIONARY = require('./../../json/dictionary.json');
 
 ERROR_EMITTER.on('client_error', (error) => returnError({
     errorType: 'client',   message: DICTIONARY.client_errors[error]

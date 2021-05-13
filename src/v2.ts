@@ -2,7 +2,7 @@
  * Allows to call APIProvder.v1.someMethod()
  * @returns  {Object} with async functions as values methodName: function
  */
-module.exports =   function    () {
+module.exports = function () {
     return {
         /**
          *
@@ -23,7 +23,7 @@ module.exports =   function    () {
         /**
          *
          * @param reqParams {Object}
-         *
+         * This method allows to buy an item
          */
         buy: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'buy'),
         buyFor: (reqParams: object)  =>  this.callMethod.call(this, reqParams, 'v2', 'buyFor'),

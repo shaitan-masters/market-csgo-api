@@ -19,9 +19,9 @@
     "sdk"
   ],
   "scripts": {
-    "build": "tsc  -p  ./src",
-    "test": "NODE_ENV=test jest test/index.test.ts  --runInBand --detectOpenHandles --testTimeout=10000",
-    "dev": "nodemon dist/index.js --exec  jest test/index.test.ts  --runInBand --detectOpenHandles --testTimeout=10000"
+    "build": "tsc   -p tsconfig.json",
+    "test": "  NODE_ENV=test jest test/index.test.js  --runInBand --detectOpenHandles --testTimeout=10000",
+    "dev": "nodemon dist/index.js --exec  jest test/index.test.js  --runInBand --detectOpenHandles --testTimeout=10000"
   },
   "publishConfig": {
     "access": "public"
@@ -39,25 +39,23 @@
   "author": "Malsa, mishanya",
   "license": "GNU GPLv3",
   "_moduleAliases": {
-    "@validateWithJoi": "helpers/validators/index",
-    "@emitters": "emitters/index",
-    "@errorEmitter": "emitters/error",
-    "@defaultValidationSchema": "enums/validation_schemas/default_validation_schema"
+    "@validateWithJoi": "dist/helpers/validators/index",
+    "@errorEmitter": "dist/emitters/error",
+    "@defaultValidationSchema": "dist/enums/validation_schemas/default_validation_schema"
   },
   "jest": {
     "coverageDirectory": "test/coverage",
     "setupFiles": [
-      "./test/setup.ts"
+      "./test/setup.js"
     ],
     "testMatch": [
-      "**/test/index.test.ts"
+      "**/test/index.test.js"
     ],
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "@defaultValidationSchema": "<rootDir>/enums/validation_schemas/default_validation_schema",
-      "@ErrorEmitter": "<rootDir>/emitters/error",
-      "@validateWithJoi": "<rootDir>/helpers/validators/index",
-      "@emitters": "<rootDir>/emitters/index"
+      "@defaultValidationSchema": "<rootDir>/dist/enums/validation_schemas/default_validation_schema",
+      "@errorEmitter": "<rootDir>/dist/emitters/error",
+      "@validateWithJoi": "<rootDir>/dist/helpers/validators/index"
     },
     "coveragePathIgnorePatterns": [
       "/node_modules/"

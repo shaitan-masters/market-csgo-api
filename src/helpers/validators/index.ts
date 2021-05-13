@@ -1,5 +1,5 @@
 const JOI = require("joi");
-const ErrorEmitter = require("@ErrorEmitter");
+const ErrorEmitter = require("@errorEmitter");
 
 
 module.exports = (object, schema = JOI.any(), errorEvent = 'uncaught_error') => {
