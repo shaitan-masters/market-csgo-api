@@ -34,6 +34,7 @@ module.exports = () => {
             } catch (ex) {
                 error = ex;
             }
+            console.log({error, APIProvider})
             expect(error).not.toEqual(null);
             expect(error).toHaveProperty('errorType');
             expect(error.errorType).toEqual('client');

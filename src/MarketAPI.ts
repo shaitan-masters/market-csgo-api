@@ -10,18 +10,17 @@ const errorEmitter = require('./emitters/error');
 const getMethodData = require('./API/v/helpers/get_method_data');
 const fetchAPI = require('./API/fetch');
 const buildRequestParams = require('./helpers/build_request_params');
-const v1 = require('./v1');
-const v2 = require('./v2');
+const v1 = require('./methods/v1');
+const v2 = require('./methods/v2');
 
 module.exports = class MarketAPI {
 
     state = {
         APIErrorsToJSON: false,
-        APIParams: {
-            currency: 'USD',
-            language: 'en',
-            marketAppId: '730'
-        },
+
+        currency: 'USD',
+        language: 'en',
+        marketAppId: '730',
         APIKey: '',
         getWarnings: false,
         /**
@@ -37,14 +36,13 @@ module.exports = class MarketAPI {
     constructor(initOptions: {
         APIErrorsToJSON?: boolean,
         APIKey?: string,
-        APIParams: {
-            currency?: string,
-            language?: string,
-            marketAppId?: string
-        } | undefined,
-        getWarnings?: boolean
+        getWarnings?: boolean,
+        currency?: string,
+        marketAppId?: string,
+        language?: string
 
-    }) {
+
+    } = {}) {
         /**
          * Validate init options with Joi.
          * No args or false value will be assigned to an object
@@ -52,12 +50,6 @@ module.exports = class MarketAPI {
         validateInitOptions(initOptions);
 
 
-        const {
-            APIErrorsToJSON,
-            APIKey,
-            getWarnings,
-            APIParams = {}
-        } = initOptions;
         /**
          * Create independent state from passed options argument
          */
@@ -67,12 +59,12 @@ module.exports = class MarketAPI {
              *  Check if client would like to get Market API errors as JSON w/o throwing
              *  Default is false
              */
-            APIErrorsToJSON: APIErrorsToJSON || this.state.APIErrorsToJSON,
+            APIErrorsToJSON: initOptions.APIErrorsToJSON || this.state.APIErrorsToJSON,
 
             /**
              * Check if client would like to get warnings
              */
-            getWarnings: getWarnings || this.state.getWarnings,
+            getWarnings: initOptions.getWarnings || this.state.getWarnings,
 
             /**
              * Limiter options be always used cause the limit 5 requests/sec seems to stay for a long time (14.04.2021)
@@ -80,30 +72,27 @@ module.exports = class MarketAPI {
             limiter: this.state.limiter, /**
              * Marketplace API key
              */
-            APIKey: APIKey || '',
+            APIKey: initOptions.APIKey || '',
             /**
              * Params to be used during API calls
              */
-            APIParams: {
-                /**
-                 * Save currency  and use it if the client won't pass this param in functions calls. Default is USD
-                 */
-                currency: APIParams.currency || DEFAULT_API_PARAMS.currency, /**
-                 /**
-                 * Save language  and use it if the client won't pass this param in functions calls. Default is en
-                 */
-                language: APIParams.language || DEFAULT_API_PARAMS.language,
 
-                /**
-                 * App id being used in the filename of DB json. Can be passed in the method getDBName by the client
-                 */
-                marketAppId: APIParams.marketAppId || DEFAULT_API_PARAMS.marketAppId,
+            /**
+             * Save currency  and use it if the client won't pass this param in functions calls. Default is USD
+             */
+            currency: initOptions.currency || DEFAULT_API_PARAMS.currency, /**
+             /**
+             * Save language  and use it if the client won't pass this param in functions calls. Default is en
+             */
+            language: initOptions.language || DEFAULT_API_PARAMS.language,
 
-            },
+            /**
+             * App id being used in the filename of DB json. Can be passed in the method getDBName by the client
+             */
+            marketAppId: initOptions.marketAppId || DEFAULT_API_PARAMS.marketAppId,
+
 
         };
-
-
 
 
         /**
@@ -122,7 +111,6 @@ module.exports = class MarketAPI {
         Object.defineProperty(this, 'v2', {get: v2.bind(this)});
 
     }
-
 
 
     /**

@@ -1,4 +1,5 @@
- const VALIDATE_WITH_JOI = require('@validateWithJoi');
-const JOI = require('joi');
+// @ts-ignore
+const validateWithJoi = require('@validateWithJoi');
 
-module.exports = responseBody =>  VALIDATE_WITH_JOI(responseBody, JOI.any())
+
+module.exports = responseBody =>  validateWithJoi(responseBody)

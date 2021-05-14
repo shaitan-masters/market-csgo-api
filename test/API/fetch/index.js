@@ -9,6 +9,7 @@ module.exports = () => {
         });
 
         require('./../v2/get_money')(API_PROVIDER);
+        require('./../v2/go_offline')(API_PROVIDER);
 
     });
 };

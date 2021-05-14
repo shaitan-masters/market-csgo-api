@@ -1,4 +1,4 @@
  const JOI = require('joi')
- const  VALIDATE_WITH_JOI = require('@validateWithJoi');
+ const  validateWithJoi = require('@validateWithJoi');
 
- module.exports = (requestParams, validationSchema) => VALIDATE_WITH_JOI(requestParams, validationSchema, 'client_error')
+ module.exports = (requestParams, validationSchema) => validateWithJoi(requestParams, validationSchema, 'client_error')

@@ -1,9 +1,12 @@
-const MarketAPI = require('./../dist/');
+const MarketAPI = require('./../dist');
 const V1_METHODS = require('./stuff/methods/v1/names');
 const V2_METHODS = require('./stuff/methods/v2/names');
 
+
 describe('Test class and methods are reachable', function () {
-    const MARKET_PROVIDER = new MarketAPI();
+    const MARKET_PROVIDER = new MarketAPI({
+        APIKey: process.APIKey
+    });
 
     test('import class', () => {
         expect(MARKET_PROVIDER instanceof MarketAPI).toBe(true);
