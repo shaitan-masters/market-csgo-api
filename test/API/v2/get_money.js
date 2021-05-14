@@ -1,6 +1,6 @@
 module.exports = APIProvider => {
     describe('Test getMoney method', () => {
-        test('getMoney method shall have property `success` = true', async () => {
+        test('With no args response shall have property `success` = true', async () => {
 
             let response = await APIProvider.v2.getMoney();
             expect(response).not.toEqual(null);
