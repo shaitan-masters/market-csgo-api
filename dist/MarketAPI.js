@@ -1,6 +1,7 @@
 const Bottleneck = require('bottleneck');
 const { validateInitOptions, validateRequestParams } = require('./helpers');
 const { limiterOptions: LIMITER_OPTIONS, defaultAPIParams: DEFAULT_API_PARAMS } = require('./enums');
+// @ts-ignore
 const errorEmitter = require('./emitters/error');
 const getMethodData = require('./API/v/helpers/get_method_data');
 const fetchAPI = require('./API/fetch');
@@ -88,10 +89,6 @@ module.exports = class MarketAPI {
          */
         const METHOD_DATA = getMethodData(version)[methodName];
         /**
-         * Check if method is private and API key is not passed
-         */
-        this.checkAPIKey.call(this, METHOD_DATA.isPrivate);
-        /**
          * Check if params object is valid
          */
         validateRequestParams(reqParams, METHOD_DATA.requestValidationSchema);
@@ -127,13 +124,5 @@ module.exports = class MarketAPI {
             (!APIResponse.success && reqParams.APIErrorsToJSON) ?
                 APIResponse :
                 errorEmitter.emit('API_Error', APIResponse);
-    }
-    /**
-     * Check if method requires auth and API key was not passed
-     * @param methodIsPrivate
-     * @returns {boolean}
-     */
-    checkAPIKey(methodIsPrivate = false) {
-        return !this.state.APIKey && methodIsPrivate && ErrorEmitter.emit('client_error', 'no_api_key_for_private_method');
     }
 };

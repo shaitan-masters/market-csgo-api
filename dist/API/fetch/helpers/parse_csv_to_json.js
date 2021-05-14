@@ -1,5 +1,6 @@
 const PARSER = require('papaparse');
-const { API_ERRORS_EMITTER } = require('@emitters');
+//@ts-ignore
+const errorEmitter = require('@errorEmitter');
 module.exports = (responseCSV, methodParams) => {
     const PARSED = PARSER.parse(responseCSV, {
         header: true,
@@ -11,5 +12,5 @@ module.exports = (responseCSV, methodParams) => {
     return PARSED.errors != 0 ?
         PARSED.data : methodParams.returnCSV ?
         responseCSV :
-        API_ERRORS_EMITTER.emit('error', errors[0]);
+        errorEmitter.emit('API_error', PARSED.errors[0]);
 };

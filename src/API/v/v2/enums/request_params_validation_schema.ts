@@ -1,4 +1,6 @@
+//@ts-ignore
 const JOI = require("joi");
+//@ts-ignore
 const CURRENCIES_ENUM = require("./../../../../enums/currencies");
 
 module.exports = JOI.object(

@@ -19,8 +19,8 @@
     "sdk"
   ],
   "scripts": {
-    "build": "tsc   -p tsconfig.json",
-    "test": "  NODE_ENV=test jest test/index.test.js  --runInBand --detectOpenHandles --testTimeout=10000",
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && NODE_ENV=test jest test/index.test.js  --runInBand --detectOpenHandles --coverage --testTimeout=10000",
     "dev": "nodemon dist/index.js --exec  jest test/index.test.js  --runInBand --detectOpenHandles --testTimeout=10000"
   },
   "publishConfig": {
@@ -58,7 +58,8 @@
       "@validateWithJoi": "<rootDir>/dist/helpers/validators/index"
     },
     "coveragePathIgnorePatterns": [
-      "/node_modules/"
+      "/node_modules/",
+      "/test/"
     ]
   },
   "dependencies": {

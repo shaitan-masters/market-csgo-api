@@ -1,5 +1,5 @@
+// @ts-ignore
 const JOI = require("joi");
-const CURRENCIES_ENUM = require("./../../../../enums/currencies");
 module.exports = {
     methods: {
         getMoney: null,
