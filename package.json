@@ -1,38 +1,39 @@
 {
-  "name": "market-csgo-api",
-  "version": "0.4.12",
-  "description": "A module for interacting with the market.csgo.com API",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/malsatin/market-csgo-api.git"
-  },
-  "keywords": [
-    "node",
-    "csgo",
-    "csgotm",
-    "csgo.tm",
-    "market",
-    "weapons",
-    "market.csgo",
-    "api",
-    "sdk"
-  ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "bugs": {
-    "url": "https://github.com/malsatin/market-csgo-api/issues"
-  },
-  "homepage": "https://github.com/malsatin/market-csgo-api#readme",
-  "author": "Malsa",
-  "license": "GNU GPLv3",
-  "dependencies": {
-    "bottleneck": "^2.19.5",
-    "got": "^11.8.2",
-    "merge": "^2.1.1",
-    "papaparse": "^5.3.0"
-  }
+    "name": "market-csgo-api",
+    "version": "0.4.13",
+    "description": "A module for interacting with the market.csgo.com API",
+    "types": "./market-csgo-api.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/malsatin/market-csgo-api.git"
+    },
+    "keywords": [
+        "node",
+        "csgo",
+        "csgotm",
+        "csgo.tm",
+        "market",
+        "weapons",
+        "market.csgo",
+        "api",
+        "sdk"
+    ],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "bugs": {
+        "url": "https://github.com/malsatin/market-csgo-api/issues"
+    },
+    "homepage": "https://github.com/malsatin/market-csgo-api#readme",
+    "author": "Malsa",
+    "license": "GNU GPLv3",
+    "dependencies": {
+        "bottleneck": "^2.19.5",
+        "got": "^11.8.2",
+        "merge": "^2.1.1",
+        "papaparse": "^5.3.0"
+    }
 }
