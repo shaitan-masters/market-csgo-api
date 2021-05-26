@@ -16,18 +16,20 @@ const v2 = require('./methods/v2');
 
 module.exports = class MarketAPI {
 
-    state = {
-        APIErrorsToJSON: false,
+    state: {
+        APIErrorsToJSON: boolean,
 
-        currency: 'USD',
-        language: 'en',
-        marketAppId: '730',
-        APIKey: '',
-        getWarnings: false,
+        currency: string,
+        language: string,
+        marketAppId: string,
+        APIKey: string,
+        getWarnings: boolean,
         /**
          * Limiter options be always used cause the limit 5 requests/sec seems to stay for a long time (14.04.2021)
          */
-        limiter: new Bottleneck(LIMITER_OPTIONS)
+        limiter: {
+            schedule: Function
+        }
     };
 
     /**
@@ -70,7 +72,7 @@ module.exports = class MarketAPI {
             /**
              * Limiter options be always used cause the limit 5 requests/sec seems to stay for a long time (14.04.2021)
              */
-            limiter: this.state.limiter, /**
+            limiter: new Bottleneck(LIMITER_OPTIONS), /**
              * Marketplace API key
              */
             APIKey: initOptions.APIKey || '',
@@ -123,32 +125,37 @@ module.exports = class MarketAPI {
      */
     async callMethod(reqParams: object = {}, version: "v1" | "v2", methodName: string) {
 
-        /**
-         * Import method from method props object
-         */
-        const METHOD_DATA = getMethodData(version)[methodName];
-
-        /**
-         * Check if params object is valid
-         */
-        validateRequestParams(reqParams, METHOD_DATA.requestValidationSchema);
-
-        /**
-         *
-         * @type {Object} Build params from
-         * request params and state object set in constructor and pass it to API caller
-         */
-        const REQUEST_PARAMS = buildRequestParams(reqParams, this.state);
-
-        /**
-         * Call API fetcher by limiter schedule with METHOD object and request params concat
-         */
-        return this.state.limiter.schedule(() => fetchAPI(METHOD_DATA, REQUEST_PARAMS, this.state)
+        try {
             /**
-             * Check if error returned and process it
+             * Import method from method props object
              */
-            .then((APIResponse: { success: boolean }) => this.processAPIError.call(this, APIResponse, METHOD_DATA, REQUEST_PARAMS))
-            .then((APIResponse: any) => APIResponse));
+            const METHOD_DATA = getMethodData(version)[methodName];
+
+
+            /**
+             * Check if params object is valid
+             */
+            validateRequestParams(reqParams, METHOD_DATA.requestValidationSchema);
+
+            /**
+             *
+             * @type {Object} Build params from
+             * request params and state object set in constructor and pass it to API caller
+             */
+            const REQUEST_PARAMS = buildRequestParams(reqParams, this.state);
+
+            /**
+             * Call API fetcher by limiter schedule with METHOD object and request params concat
+             */
+            return this.state.limiter.schedule(() => fetchAPI(METHOD_DATA, REQUEST_PARAMS, this.state)
+                /**
+                 * Check if error returned and process it
+                 */
+                .then((APIResponse: { success: boolean }) => this.processAPIError.call(this, APIResponse, METHOD_DATA, REQUEST_PARAMS))
+                .then((APIResponse: any) => APIResponse));
+        } catch (error) {
+            return errorEmitter.processError(error)
+        }
 
     }
 
