@@ -1522,7 +1522,7 @@ class MarketApi {
         if(typeof item === 'object') {
             params.id = self.formatItem(item);
         } else {
-            params.market_hash_name = item;
+            params.hash_name = item;
         }
 
         if(customId) {
