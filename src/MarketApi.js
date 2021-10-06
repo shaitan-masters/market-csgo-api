@@ -1554,10 +1554,10 @@ class MarketApi {
         }
 
         if(tradeData && tradeData.partnerId && tradeData.tradeToken) {
-            params = {
+            Object.assign(params, {
                 partner: tradeData.partnerId,
                 token: tradeData.tradeToken,
-            };
+            });
         }
 
         if(customId) {
