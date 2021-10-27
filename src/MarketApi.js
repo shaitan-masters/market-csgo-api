@@ -646,6 +646,17 @@ class MarketApi {
     }
 
     /**
+     * Get key for auth on websockets
+     *
+     * @param {Object} [gotOptions] Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    accountV2GetWSAuth(gotOptions = null) {
+        return this.callV2MethodWithKey('get-ws-auth', gotOptions);
+    }
+
+    /**
      * Update cache of steam inventory
      *
      * @param {Object} [gotOptions] Options for 'got' module
