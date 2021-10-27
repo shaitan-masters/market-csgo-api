@@ -646,6 +646,17 @@ class MarketApi {
     }
 
     /**
+     * Get key for auth on websockets
+     *
+     * @param {Object} [gotOptions] Options for 'got' module
+     *
+     * @returns {Promise}
+     */
+    accountV2GetWSAuth(gotOptions = null) {
+        return this.callV2MethodWithKey('get-ws-auth', gotOptions);
+    }
+
+    /**
      * Update cache of steam inventory
      *
      * @param {Object} [gotOptions] Options for 'got' module
@@ -1522,7 +1533,7 @@ class MarketApi {
         if(typeof item === 'object') {
             params.id = self.formatItem(item);
         } else {
-            params.market_hash_name = item;
+            params.hash_name = item;
         }
 
         if(customId) {
@@ -1550,14 +1561,14 @@ class MarketApi {
         if(typeof item === 'object') {
             params.id = self.formatItem(item);
         } else {
-            params.market_hash_name = item;
+            params.hash_name = item;
         }
 
         if(tradeData && tradeData.partnerId && tradeData.tradeToken) {
-            params = {
+            Object.assign(params, {
                 partner: tradeData.partnerId,
                 token: tradeData.tradeToken,
-            };
+            });
         }
 
         if(customId) {
