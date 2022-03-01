@@ -464,7 +464,7 @@ class MarketApi {
      */
     callItemMethod(item, method, gotOptions = null) {
         let self = this.constructor;
-        let url = [method, self.formatItem(item)];
+        let url = [method, MarketApi.formatItem(item)];
 
         return this.callMethodWithKey(url, gotOptions);
     }
@@ -774,7 +774,7 @@ class MarketApi {
         let self = this.constructor;
         language = language || self.LANGUAGES.RU;
 
-        let url = ['ItemInfo', self.formatItem(item), language];
+        let url = ['ItemInfo', MarketApi.formatItem(item), language];
 
         return this.callMethodWithKey(url, gotOptions);
     }
@@ -892,7 +892,7 @@ class MarketApi {
 
         let list = [];
         items.forEach(item => {
-            list.push(self.formatItem(item));
+            list.push(MarketApi.formatItem(item));
         });
 
         return this.callPostMethodWithKey(url, {list: list.toString()}, gotOptions);
@@ -915,7 +915,7 @@ class MarketApi {
      */
     sellCreate(item, price, gotOptions = null) {
         let self = this.constructor;
-        let url = ['SetPrice', `new_${self.formatItem(item)}`, self.formatPrice(price)];
+        let url = ['SetPrice', `new_${MarketApi.formatItem(item)}`, self.formatPrice(price)];
 
         return this.callMethodWithKey(url, gotOptions);
     }
@@ -1013,7 +1013,7 @@ class MarketApi {
         let self = this.constructor;
         let name;
         try {
-            name = self.formatItem(item);
+            name = MarketApi.formatItem(item);
         } catch(e) {
             name = self.getItemHash(item);
         }
@@ -1061,7 +1061,7 @@ class MarketApi {
      */
     buyCreate(item, price, tradeData = null, gotOptions = null) {
         let self = this.constructor;
-        let method = ['Buy', self.formatItem(item), self.formatPrice(price), item.hash];
+        let method = ['Buy', MarketApi.formatItem(item), self.formatPrice(price), item.hash];
 
         let _partnerData = null;
         if(tradeData && tradeData.partnerId && tradeData.tradeToken) {
@@ -1110,7 +1110,7 @@ class MarketApi {
      */
     orderCreate(item, price, gotOptions = null) {
         let self = this.constructor;
-        let url = ['InsertOrder', self.formatItem(item, '/'), self.formatPrice(price), item.hash];
+        let url = ['InsertOrder', MarketApi.formatItem(item, '/'), self.formatPrice(price), item.hash];
 
         return this.callMethodWithKey(url, gotOptions);
     }
@@ -1126,7 +1126,7 @@ class MarketApi {
      */
     orderUpdateOrRemove(item, price, gotOptions = null) {
         let self = this.constructor;
-        let url = ['UpdateOrder', self.formatItem(item, '/'), self.formatPrice(price)];
+        let url = ['UpdateOrder', MarketApi.formatItem(item, '/'), self.formatPrice(price)];
 
         return this.callMethodWithKey(url, gotOptions);
     }
@@ -1142,7 +1142,7 @@ class MarketApi {
      */
     orderProcess(item, price, gotOptions = null) {
         let self = this.constructor;
-        let url = ['ProcessOrder', self.formatItem(item, '/'), self.formatPrice(price)];
+        let url = ['ProcessOrder', MarketApi.formatItem(item, '/'), self.formatPrice(price)];
 
         return this.callMethodWithKey(url, gotOptions);
     }
@@ -1208,7 +1208,7 @@ class MarketApi {
      */
     notificationProcess(item, price, gotOptions = null) {
         let self = this.constructor;
-        let url = ['UpdateNotification', self.formatItem(item, '/'), self.formatPrice(price)];
+        let url = ['UpdateNotification', MarketApi.formatItem(item, '/'), self.formatPrice(price)];
 
         return this.callMethodWithKey(url, gotOptions);
     }
@@ -1375,7 +1375,7 @@ class MarketApi {
     v2PriceItemDb(currency, item, gotOptions = null) {
         currency = currency.toUpperCase();
 
-        let id = self.formatItem(item);
+        let id = MarketApi.formatItem(item);
         let url = `${this.apiUrl}/${MarketApi.VERSIONS.V2}/prices/${id}/${currency}.json`;
 
         return this.requestJsonHook(url, gotOptions);
@@ -1531,7 +1531,7 @@ class MarketApi {
         };
 
         if(typeof item === 'object') {
-            params.id = self.formatItem(item);
+            params.id = MarketApi.formatItem(item);
         } else {
             params.hash_name = item;
         }
@@ -1559,7 +1559,7 @@ class MarketApi {
         };
 
         if(typeof item === 'object') {
-            params.id = self.formatItem(item);
+            params.hash_name = item.hashName;
         } else {
             params.hash_name = item;
         }
@@ -1678,6 +1678,22 @@ class MarketApi {
         }
 
         return this.callV2MethodWithKey('remove-all-from-sale', gotOptions, params);
+    }
+
+    /**
+     * Create a request for the transfer of purchased items that are at our bots.
+     *
+     * @param {Number} [botId]
+     * @param {Object} [gotOptions]
+     * @return {Promise}
+     */
+    tradeV2RequestTake(botId = null, gotOptions = null) {
+        let params = {};
+        if(botId) {
+            params = {bot: botId};
+        }
+
+        return this.callV2MethodWithKey('trade-request-take', gotOptions, params);
     }
 
     /**
